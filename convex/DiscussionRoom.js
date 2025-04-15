@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 export const createNewRoom = mutation({
     args:{
@@ -20,4 +20,14 @@ export const createNewRoom = mutation({
         return result;
     }
 
+    
+})
+export const GetDiscussionRoom = query({
+    args:{
+        id:v.id('DiscussionRoom')
+    },
+    handler:async(ctx,args)=>{
+        const result = await ctx.db.get(args.id)
+        return result
+    }
 })
