@@ -1,6 +1,7 @@
 "use client";
 import { api } from '@/convex/_generated/api';
 import { ExpertName } from '@/services/options';
+import { UserButton } from '@stackframe/stack';
 import { useQuery } from 'convex/react';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -35,9 +36,9 @@ const DiscussionRoom = () => {
     }
   }, [DiscussionRoomData]);
 
-  const handleConnect = () => {
-    setIsConnected(true);
-  };
+  // const handleConnect = () => {
+  //   setIsConnected(true);
+  // };
 
   return (
     <div className="w-full max-w-7xl mx-auto mt-8 px-6 md:px-8">
@@ -60,17 +61,16 @@ const DiscussionRoom = () => {
           )}
           
           {/* User self view */}
-          <div className="absolute bottom-4 right-4">
-            <div className="w-12 h-12 rounded-full bg-teal-700 flex items-center justify-center text-white font-semibold">
-              S
-            </div>
+          <div className="absolute bottom-4 right-4 border-2 p-5 px-9 bg-gray-300 rounded-xl">
+
+            <UserButton/>
           </div>
           
           {/* Connect button */}
           {!isConnected && (
             <div className="absolute bottom-8 left-0 right-0 flex justify-center">
               <button 
-                onClick={handleConnect}
+                // onClick={handleConnect}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-full"
               >
                 Connect Now
