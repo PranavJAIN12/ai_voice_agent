@@ -1,14 +1,15 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
+import { useParams } from "next/navigation";
 import { getToken } from "@/services/globalSer";
 import { ExpertName } from "@/services/options";
 import { UserButton } from "@stackframe/stack";
-import { AssemblyAI, RealtimeTranscriber } from "assemblyai";
-import { useQuery } from "convex/react";
 import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+
+let silenceTimeout = null;
 
 const DiscussionRoom = () => {
   const { roomid } = useParams();
@@ -17,24 +18,11 @@ const DiscussionRoom = () => {
   });
 
   const [expert, setExpert] = useState(null);
-  const [messages, setMessages] = useState([
-    { sender: "ai", text: "I am AI", isAI: true },
-    { sender: "user", text: "hello world", isAI: false },
-    { sender: "ai", text: "I am AI", isAI: true },
-    { sender: "user", text: "hello world", isAI: false },
-    { sender: "ai", text: "I am AI", isAI: true },
-    { sender: "user", text: "hello world", isAI: false },
-    { sender: "ai", text: "I am AI", isAI: true },
-    { sender: "user", text: "hello world", isAI: false },
-    { sender: "ai", text: "I am AI", isAI: true },
-    { sender: "user", text: "hello world", isAI: false },
-    { sender: "ai", text: "I am AI", isAI: true },
-    { sender: "ai", text: "I am AI", isAI: true },
-  ]);
+  const [transcript, setTranscript] = useState('');
+  const [messages, setMessages] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [RecordRTCInstance, setRecordRTCInstance] = useState(null);
-  const recorder = useRef(null);
-  let silenceTimeout;
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     const loadRecorder = async () => {
@@ -55,73 +43,67 @@ const DiscussionRoom = () => {
     }
   }, [DiscussionRoomData]);
 
-  const handleConnect = async() => {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event) => {
+          const spoken = event.results[event.results.length - 1][0].transcript;
+          setTranscript(spoken);
+
+          // Optional: Add to message history
+          setMessages((prev) => [
+            ...prev,
+            { sender: "user", text: spoken, isAI: false },
+          ]);
+        };
+
+        recognition.onerror = (event) => {
+          console.error("Speech recognition error:", event.error);
+        };
+
+        recognition.onend = () => {
+          if (isConnected) recognition.start(); // Auto-restart if connected
+        };
+
+        recognitionRef.current = recognition;
+      } else {
+        console.warn("Web Speech API not supported in this browser.");
+      }
+    }
+  }, [isConnected]);
+
+  const handleConnect = async () => {
     if (!RecordRTCInstance) {
       console.error("RecordRTC not yet loaded.");
       return;
     }
-  
-    try {
-      setIsConnected(true);
-      
-      // Get the temporary token from your API route
-      const token = await getToken();
-      
-      // Initialize AssemblyAI realtime transcriber
-      const transcriber = new RealtimeTranscriber({
-        token: token,
-        sampleRate: 16000
-      });
-      
-      transcriber.on('transcript', (transcript) => {
-        console.log(transcript);
-        // Update UI with transcript as needed
-      });
-      
-      transcriber.on('error', (error) => {
-        console.error("AssemblyAI transcription error:", error);
-      });
-      
-      await transcriber.connect();
-      RealtimeTranscriber.current = transcriber;
-      
-      // Set up audio recording
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          // Your existing recorder setup code...
-        })
-        .catch((err) => {
-          console.error("Media access error:", err);
-          setIsConnected(false);
-        });
-    } catch (error) {
-      console.error("Connection error:", error);
-      setIsConnected(false);
-    }
+
+    recognitionRef.current?.start();
+    setIsConnected(true);
   };
-  const disconnect = async(e) => {
+
+  const disconnect = async (e) => {
     e.preventDefault();
     setIsConnected(false);
-    await RealtimeTranscriber.current.close()
-
-    if (recorder.current) {
-      recorder.current.stopRecording(() => {
-        const stream = recorder.current.getInternalRecorder()?.stream;
-        stream?.getTracks().forEach((track) => track.stop());
-        recorder.current = null;
-      });
-    }
-
+    recognitionRef.current?.stop();
     clearTimeout(silenceTimeout);
   };
 
   if (!RecordRTCInstance) {
-    return <div className="text-center py-20">Loading microphone module...</div>;
+    return (
+      <div className="text-center py-20">Loading microphone module...</div>
+    );
   }
 
-
-  
   return (
     <div className="w-full max-w-7xl mx-auto mt-8 px-6 md:px-8">
       <h1 className="text-xl font-semibold mb-4">Mockup Interview</h1>
@@ -138,11 +120,11 @@ const DiscussionRoom = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <p className="mt-2 text-center">{expert.name || "Sallie"}</p>
+              <p className="mt-2 text-center">{expert.name || "Expert"}</p>
             </div>
           )}
 
-          {/* User self view */}
+          {/* Self view */}
           <div className="absolute bottom-4 right-4 border-2 p-5 px-9 bg-gray-300 rounded-xl">
             <UserButton />
           </div>
@@ -164,7 +146,7 @@ const DiscussionRoom = () => {
           </div>
         </div>
 
-        {/* Chat area */}
+        {/* Chat + transcript */}
         <div className="w-full md:w-1/5 bg-white rounded-xl p-4 flex flex-col h-[500px]">
           <div className="flex-1 overflow-y-auto space-y-3">
             {messages.map((msg, index) => (
@@ -183,8 +165,11 @@ const DiscussionRoom = () => {
           </div>
 
           <div className="mt-4 text-xs text-gray-500 px-2">
-            At the end of conversation we will automatically generate
-            feedback/notes from your conversation
+            <strong>Live Transcript:</strong> {transcript || "—"}
+          </div>
+
+          <div className="mt-2 text-xs text-gray-500 px-2">
+            At the end of the conversation, we’ll automatically generate feedback/notes.
           </div>
         </div>
       </div>
