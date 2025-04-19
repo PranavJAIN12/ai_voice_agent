@@ -1,8 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
+import { getToken } from "@/services/globalSer";
 import { ExpertName } from "@/services/options";
 import { UserButton } from "@stackframe/stack";
+import { AssemblyAI, RealtimeTranscriber } from "assemblyai";
 import { useQuery } from "convex/react";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
@@ -53,44 +55,55 @@ const DiscussionRoom = () => {
     }
   }, [DiscussionRoomData]);
 
-  const handleConnect = () => {
+  const handleConnect = async() => {
     if (!RecordRTCInstance) {
       console.error("RecordRTC not yet loaded.");
       return;
     }
-
-    setIsConnected(true);
-
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        recorder.current = new RecordRTCInstance(stream, {
-          type: "audio",
-          mimeType: "audio/webm;codecs=pcm",
-          recorderType: RecordRTCInstance.StereoAudioRecorder,
-          timeSlice: 250,
-          desiredSampRate: 16000,
-          numberOfAudioChannels: 1,
-          bufferSize: 4096,
-          audioBitsPerSecond: 128000,
-          ondataavailable: async (blob) => {
-            clearTimeout(silenceTimeout);
-            const buffer = await blob.arrayBuffer();
-            console.log(buffer);
-            silenceTimeout = setTimeout(() => {
-              console.log("User stopped talking");
-            }, 2000);
-          },
+  
+    try {
+      setIsConnected(true);
+      
+      // Get the temporary token from your API route
+      const token = await getToken();
+      
+      // Initialize AssemblyAI realtime transcriber
+      const transcriber = new RealtimeTranscriber({
+        token: token,
+        sampleRate: 16000
+      });
+      
+      transcriber.on('transcript', (transcript) => {
+        console.log(transcript);
+        // Update UI with transcript as needed
+      });
+      
+      transcriber.on('error', (error) => {
+        console.error("AssemblyAI transcription error:", error);
+      });
+      
+      await transcriber.connect();
+      RealtimeTranscriber.current = transcriber;
+      
+      // Set up audio recording
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          // Your existing recorder setup code...
+        })
+        .catch((err) => {
+          console.error("Media access error:", err);
+          setIsConnected(false);
         });
-
-        recorder.current.startRecording();
-      })
-      .catch((err) => console.error(err));
+    } catch (error) {
+      console.error("Connection error:", error);
+      setIsConnected(false);
+    }
   };
-
-  const disconnect = (e) => {
+  const disconnect = async(e) => {
     e.preventDefault();
     setIsConnected(false);
+    await RealtimeTranscriber.current.close()
 
     if (recorder.current) {
       recorder.current.stopRecording(() => {
@@ -107,6 +120,8 @@ const DiscussionRoom = () => {
     return <div className="text-center py-20">Loading microphone module...</div>;
   }
 
+
+  
   return (
     <div className="w-full max-w-7xl mx-auto mt-8 px-6 md:px-8">
       <h1 className="text-xl font-semibold mb-4">Mockup Interview</h1>
