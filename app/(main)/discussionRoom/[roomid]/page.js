@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { useParams } from "next/navigation";
-import { getToken } from "@/services/globalSer";
 import { ExpertName } from "@/services/options";
 import { UserButton } from "@stackframe/stack";
-import dynamic from "next/dynamic";
+import { AIModel } from "@/services/globalSer";
 
 let silenceTimeout = null;
 
@@ -23,6 +22,7 @@ const DiscussionRoom = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [RecordRTCInstance, setRecordRTCInstance] = useState(null);
   const recognitionRef = useRef(null);
+  const micStreamRef = useRef(null);
 
   useEffect(() => {
     const loadRecorder = async () => {
@@ -44,7 +44,8 @@ const DiscussionRoom = () => {
   }, [DiscussionRoomData]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    // Only set up speech recognition when we're connected AND have room data
+    if (typeof window !== "undefined" && isConnected && DiscussionRoomData) {
       const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -55,31 +56,57 @@ const DiscussionRoom = () => {
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
-        recognition.onresult = (event) => {
+        recognition.onresult = async (event) => {
           const spoken = event.results[event.results.length - 1][0].transcript;
           setTranscript(spoken);
-
-          // Optional: Add to message history
+        
           setMessages((prev) => [
             ...prev,
             { sender: "user", text: spoken, isAI: false },
           ]);
+        
+          // Room data is guaranteed to exist here due to the effect dependency
+          try {
+            const airesponse = await AIModel(
+              DiscussionRoomData.topic,
+              DiscussionRoomData.coachingOption,
+              spoken
+            );
+            console.log("ai response:", airesponse)
+        
+            setMessages((prev) => [
+              ...prev,
+              { sender: "ai", text: airesponse.content || airesponse.text, isAI: true },
+            ]);
+          } catch (error) {
+            console.error("AI error:", error);
+            setMessages((prev) => [
+              ...prev,
+              { sender: "ai", text: "Sorry, I encountered an error processing your response.", isAI: true },
+            ]);
+          }
         };
-
+        
         recognition.onerror = (event) => {
           console.error("Speech recognition error:", event.error);
         };
 
         recognition.onend = () => {
-          if (isConnected) recognition.start(); // Auto-restart if connected
+          if (isConnected) recognition.start();
         };
 
         recognitionRef.current = recognition;
+        recognition.start();
+        
+        return () => {
+          recognition.onend = null;
+          recognition.stop();
+        };
       } else {
         console.warn("Web Speech API not supported in this browser.");
       }
     }
-  }, [isConnected]);
+  }, [isConnected, DiscussionRoomData]);
 
   const handleConnect = async () => {
     if (!RecordRTCInstance) {
@@ -87,26 +114,53 @@ const DiscussionRoom = () => {
       return;
     }
 
-    recognitionRef.current?.start();
-    setIsConnected(true);
+    // Only allow connection if room data is loaded
+    if (!DiscussionRoomData) {
+      console.error("Room data not yet loaded. Please wait.");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = stream;
+      setIsConnected(true);
+      console.log("Mic started");
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+    }
   };
 
   const disconnect = async (e) => {
     e.preventDefault();
     setIsConnected(false);
-    recognitionRef.current?.stop();
+
+    if (recognitionRef.current) {
+      recognitionRef.current.onend = null;
+      recognitionRef.current.stop();
+      console.log("Recognition stopped.");
+    }
+
     clearTimeout(silenceTimeout);
+    silenceTimeout = null;
+
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((track) => track.stop());
+      micStreamRef.current = null;
+      console.log("Mic stream stopped.");
+    }
   };
 
-  if (!RecordRTCInstance) {
+  const isLoading = !DiscussionRoomData || !RecordRTCInstance;
+
+  if (isLoading) {
     return (
-      <div className="text-center py-20">Loading microphone module...</div>
+      <div className="text-center py-20">Loading resources...</div>
     );
   }
 
   return (
     <div className="w-full max-w-7xl mx-auto mt-8 px-6 md:px-8">
-      <h1 className="text-xl font-semibold mb-4">Mockup Interview</h1>
+      <h1 className="text-xl font-semibold mb-4">Mockup Interview on {DiscussionRoomData.topic} by {DiscussionRoomData.expertName}</h1>
 
       <div className="flex flex-col md:flex-row gap-4">
         {/* Main interview area */}
@@ -129,7 +183,7 @@ const DiscussionRoom = () => {
             <UserButton />
           </div>
 
-          {/* Connect button */}
+          {/* Connect/Disconnect button */}
           <div className="absolute bottom-8 left-0 right-0 flex justify-center">
             {!isConnected ? (
               <Button
@@ -169,7 +223,7 @@ const DiscussionRoom = () => {
           </div>
 
           <div className="mt-2 text-xs text-gray-500 px-2">
-            At the end of the conversation, we’ll automatically generate feedback/notes.
+            At the end of the conversation, we'll automatically generate feedback/notes.
           </div>
         </div>
       </div>
