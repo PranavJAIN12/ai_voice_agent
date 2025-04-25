@@ -35,15 +35,15 @@ const UserImputDial = ({ children, coachingOpt }) => {
         expertName: selectedExpert,
       });
       console.log(result);
-      setLoading(false);
       setOpenDialog(false);
-      router.push('/discussionRoom/'+ result)
+      router.push("/discussionRoom/" + result);
+      setLoading(false);
     } catch (error) {
       console.error("Error occured:", error);
     }
   };
   return (
-    <Dialog open = {openDialog} onOpenChange={setOpenDialog}>
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -87,9 +87,13 @@ const UserImputDial = ({ children, coachingOpt }) => {
                     alt="img"
                     height={"80"}
                     width={80}
-                    className="rounded-4xl cover"
+                    className={`rounded-4xl cover hover:border-2 hover:cursor-pointer ${
+                      selectedExpert === expert.name
+                        ? "border-4 border-blue-500"
+                        : ""
+                    }`}
                   />
-                  <p>{expert.name}</p>
+                  <p className={`mx-3`}>{expert.name}</p>
                 </div>
               ))}
             </div>

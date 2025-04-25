@@ -2,6 +2,8 @@ import { UserButton } from '@stackframe/stack';
 import { Bot } from 'lucide-react';
 import React from 'react';
 import Link from 'next/link';
+import { ThemeProvider } from '@/components/theme-provider';
+import { ModeToggle } from '@/components/ThemeToggle';
 
 const AppHeader = () => {
   return (
@@ -29,6 +31,10 @@ const AppHeader = () => {
         <div className="flex items-center space-x-4">
           <div className=" bg-opacity-20 rounded-full p-1">
             <UserButton />
+          </div>
+          <div>
+            {/* <ThemeProvider/> */}
+            <ModeToggle/>
           </div>
         </div>
       </div>

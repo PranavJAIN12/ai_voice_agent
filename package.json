@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.7",
+    "@radix-ui/react-dropdown-menu": "^2.1.12",
     "@radix-ui/react-slot": "^1.2.0",
     "@stackframe/stack": "^2.8.3",
     "assemblyai": "^4.9.0",
@@ -19,6 +20,7 @@
     "convex": "^1.23.0",
     "lucide-react": "^0.487.0",
     "next": "15.3.0",
+    "next-themes": "^0.4.6",
     "openai": "^4.95.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
