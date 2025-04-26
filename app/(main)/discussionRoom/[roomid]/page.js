@@ -2,11 +2,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useParams } from "next/navigation";
 import { ExpertName } from "@/services/options";
 import { UserButton } from "@stackframe/stack";
 import { AIModel } from "@/services/globalSer";
+import { Loader } from "lucide-react";
 
 let silenceTimeout = null;
 
@@ -23,6 +24,9 @@ const DiscussionRoom = () => {
   const [RecordRTCInstance, setRecordRTCInstance] = useState(null);
   const recognitionRef = useRef(null);
   const micStreamRef = useRef(null);
+  const [loading, setLoading] = useState(false)
+
+  const updateConversation = useMutation(api.DiscussionRoom.updateConversation)
 
   useEffect(() => {
     const loadRecorder = async () => {
@@ -64,7 +68,7 @@ const DiscussionRoom = () => {
             ...prev,
             { sender: "user", text: spoken, isAI: false },
           ]);
-        
+        setLoading(true)
           // Room data is guaranteed to exist here due to the effect dependency
           try {
             const airesponse = await AIModel(
@@ -73,7 +77,7 @@ const DiscussionRoom = () => {
               spoken
             );
             console.log("ai response:", airesponse)
-        
+            
             setMessages((prev) => [
               ...prev,
               { sender: "ai", text: airesponse.content || airesponse.text, isAI: true },
@@ -84,6 +88,8 @@ const DiscussionRoom = () => {
               ...prev,
               { sender: "ai", text: "Sorry, I encountered an error processing your response.", isAI: true },
             ]);
+            // console.log("sliced",msg.slice(-2));
+            // console.log(messages)
           }
         };
         
@@ -125,6 +131,7 @@ const DiscussionRoom = () => {
       micStreamRef.current = stream;
       setIsConnected(true);
       console.log("Mic started");
+      // setLoading(true)
     } catch (err) {
       console.error("Error accessing microphone:", err);
     }
@@ -133,7 +140,7 @@ const DiscussionRoom = () => {
   const disconnect = async (e) => {
     e.preventDefault();
     setIsConnected(false);
-
+    setLoading(true)
     if (recognitionRef.current) {
       recognitionRef.current.onend = null;
       recognitionRef.current.stop();
@@ -148,6 +155,11 @@ const DiscussionRoom = () => {
       micStreamRef.current = null;
       console.log("Mic stream stopped.");
     }
+    setLoading(false)
+    await updateConversation({
+      id: DiscussionRoomData._id,
+      conversation:messages
+    })
   };
 
   const isLoading = !DiscussionRoomData || !RecordRTCInstance;
@@ -190,7 +202,7 @@ const DiscussionRoom = () => {
                 onClick={handleConnect}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-full"
               >
-                Connect Now
+                Connect Now{loading && <Loader className="animate-spin"/>}
               </Button>
             ) : (
               <Button variant={"destructive"} onClick={disconnect}>
@@ -224,6 +236,7 @@ const DiscussionRoom = () => {
 
           <div className="mt-2 text-xs text-gray-500 px-2">
             At the end of the conversation, we'll automatically generate feedback/notes.
+          
           </div>
         </div>
       </div>
