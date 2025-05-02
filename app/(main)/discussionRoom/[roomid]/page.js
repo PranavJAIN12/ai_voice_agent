@@ -69,7 +69,7 @@ const DiscussionRoom = () => {
             { sender: "user", text: spoken, isAI: false },
           ]);
         setLoading(true)
-          // Room data is guaranteed to exist here due to the effect dependency
+          
           try {
             const airesponse = await AIModel(
               DiscussionRoomData.topic,
@@ -77,11 +77,13 @@ const DiscussionRoom = () => {
               spoken
             );
             console.log("ai response:", airesponse)
+            const aiText = airesponse.content || airesponse.text;
             
             setMessages((prev) => [
               ...prev,
               { sender: "ai", text: airesponse.content || airesponse.text, isAI: true },
             ]);
+            speakResponse(aiText)
           } catch (error) {
             console.error("AI error:", error);
             setMessages((prev) => [
@@ -113,6 +115,14 @@ const DiscussionRoom = () => {
       }
     }
   }, [isConnected, DiscussionRoomData]);
+
+const speakResponse = (text)=>{
+  const utterance = new SpeechSynthesisUtterance(text);
+utterance.pitch = 1.2; // 0 to 2 (normal = 1)
+utterance.rate = 1;    // 0.1 to 10 (normal = 1)
+utterance.voice = speechSynthesis.getVoices()[0]; // pick a specific voice
+speechSynthesis.speak(utterance);
+}
 
   const handleConnect = async () => {
     if (!RecordRTCInstance) {
@@ -183,7 +193,7 @@ const DiscussionRoom = () => {
                 <img
                   src={expert.image || "/placeholder-expert.jpg"}
                   alt={expert.name}
-                  className="w-full h-full object-cover"
+                  className = {`${isConnected? "animate-pulse w-full h-full object-cover" : "w-full h-full object-cover"}`}
                 />
               </div>
               <p className="mt-2 text-center">{expert.name || "Expert"}</p>
@@ -224,6 +234,7 @@ const DiscussionRoom = () => {
                       : "bg-gray-200 text-gray-800"
                   } rounded-xl py-2 px-4 text-sm max-w-full`}
                 >
+                
                   {msg.text}
                 </div>
               </div>
