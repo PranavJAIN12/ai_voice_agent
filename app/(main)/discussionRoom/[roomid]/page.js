@@ -6,7 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useParams } from "next/navigation";
 import { ExpertName } from "@/services/options";
 import { UserButton } from "@stackframe/stack";
-import { AIModel } from "@/services/globalSer";
+import { AIModel, AIModelToGenerateFeedbackAndNotes } from "@/services/globalSer";
 import { Loader } from "lucide-react";
 
 let silenceTimeout = null;
@@ -25,6 +25,9 @@ const DiscussionRoom = () => {
   const recognitionRef = useRef(null);
   const micStreamRef = useRef(null);
   const [loading, setLoading] = useState(false)
+  const [enableFeedback, setEnableFeedback] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
 
   const updateConversation = useMutation(api.DiscussionRoom.updateConversation)
 
@@ -77,7 +80,9 @@ const DiscussionRoom = () => {
               spoken
             );
             console.log("ai response:", airesponse)
-            const aiText = airesponse.content || airesponse.text;
+            // const aiText = airesponse.content || airesponse.text;
+            const aiText = airesponse.parts?.[0]?.text || "No response from AI.";
+
             
             setMessages((prev) => [
               ...prev,
@@ -170,6 +175,17 @@ speechSynthesis.speak(utterance);
       id: DiscussionRoomData._id,
       conversation:messages
     })
+
+    setEnableFeedback(true)
+
+    const feedback = await AIModelToGenerateFeedbackAndNotes(
+      DiscussionRoomData.coachingOption,
+      messages
+    );
+    const aiFeedback = feedback.parts?.[0]?.text || "No feedback from AI.";
+    setFeedback(aiFeedback);
+    console.log("feedback:", aiFeedback)
+    
   };
 
   const isLoading = !DiscussionRoomData || !RecordRTCInstance;
@@ -235,7 +251,7 @@ speechSynthesis.speak(utterance);
                   } rounded-xl py-2 px-4 text-sm max-w-full`}
                 >
                 
-                  {msg.text}
+                  {msg.text} 
                 </div>
               </div>
             ))}
@@ -247,6 +263,13 @@ speechSynthesis.speak(utterance);
 
           <div className="mt-2 text-xs text-gray-500 px-2">
             At the end of the conversation, we'll automatically generate feedback/notes.
+            {feedback && (
+  <div className="mt-4 p-4 bg-yellow-100 rounded-md text-sm text-gray-800">
+    <strong>AI Feedback:</strong>
+    <p>{feedback}</p>
+  </div>
+)}
+
           
           </div>
         </div>
