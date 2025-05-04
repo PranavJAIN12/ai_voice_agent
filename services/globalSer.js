@@ -137,14 +137,13 @@ export const AIModel = async (topic, expertType, msg) => {
         throw error;
     }
 };
-
 // Generate feedback and notes from conversation
 export const AIModelToGenerateFeedbackAndNotes = async (expertType, messages) => {
     console.log("Inside AIModelToGenerateFeedbackAndNotes with expert type:", expertType);
 
-    if (!expertType || !messages) {
-        console.error("Missing required parameter(s):", { expertType, messages });
-        throw new Error("Missing required parameters");
+    if (!expertType || !messages || !Array.isArray(messages)) {
+        console.error("Missing or invalid parameter(s):", { expertType, messages });
+        throw new Error("Missing or invalid parameters");
     }
 
     const option = ExpertsList.find((item) => item.name === expertType);
@@ -153,15 +152,26 @@ export const AIModelToGenerateFeedbackAndNotes = async (expertType, messages) =>
         throw new Error("No expert type found");
     }
 
-    const filledPrompt = option.summeryPrompt;
-    console.log("Filled prompt:", filledPrompt);
+    // Format the conversation messages properly
+    const formattedConversation = messages.map(msg => {
+        const speaker = msg.isAI ? "Expert" : "User";
+        return `${speaker}: ${msg.text}`;
+    }).join('\n\n');
+
+    const filledPrompt = `${option.summaryPrompt}
+
+CONVERSATION TRANSCRIPT:
+${formattedConversation}
+
+Please provide constructive feedback on this conversation based on the above context.`;
+
+    console.log("Prepared prompt for feedback generation");
 
     const payload = JSON.stringify({
         contents: [
             {
                 parts: [
-                    { text: filledPrompt },
-                    { text: messages.join(' ') }  // Join all the message texts together
+                    { text: filledPrompt }
                 ]
             }
         ]
@@ -176,12 +186,24 @@ export const AIModelToGenerateFeedbackAndNotes = async (expertType, messages) =>
             body: payload
         });
 
-        const data = await response.json();
-        console.log("Gemini API result:", data);
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("API Error:", errorData);
+            throw new Error(`API error: ${response.status}`);
+        }
 
-        return data.candidates?.[0]?.content || "No response from Gemini";
+        const data = await response.json();
+        console.log("Feedback generated successfully");
+
+        // Handle the response structure properly
+        if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+            return data.candidates[0].content;
+        } else {
+            console.error("Unexpected API response structure:", data);
+            return { text: "Could not generate feedback. Please try again." };
+        }
     } catch (error) {
-        console.error("Gemini API error:", error);
+        console.error("Error generating feedback:", error);
         throw error;
     }
 };

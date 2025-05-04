@@ -6,7 +6,10 @@ import { useMutation, useQuery } from "convex/react";
 import { useParams } from "next/navigation";
 import { ExpertName } from "@/services/options";
 import { UserButton } from "@stackframe/stack";
-import { AIModel, AIModelToGenerateFeedbackAndNotes } from "@/services/globalSer";
+import {
+  AIModel,
+  AIModelToGenerateFeedbackAndNotes,
+} from "@/services/globalSer";
 import { Loader } from "lucide-react";
 
 let silenceTimeout = null;
@@ -18,18 +21,17 @@ const DiscussionRoom = () => {
   });
 
   const [expert, setExpert] = useState(null);
-  const [transcript, setTranscript] = useState('');
+  const [transcript, setTranscript] = useState("");
   const [messages, setMessages] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [RecordRTCInstance, setRecordRTCInstance] = useState(null);
   const recognitionRef = useRef(null);
   const micStreamRef = useRef(null);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const [enableFeedback, setEnableFeedback] = useState(false);
   const [feedback, setFeedback] = useState(null);
 
-
-  const updateConversation = useMutation(api.DiscussionRoom.updateConversation)
+  const updateConversation = useMutation(api.DiscussionRoom.updateConversation);
 
   useEffect(() => {
     const loadRecorder = async () => {
@@ -66,40 +68,53 @@ const DiscussionRoom = () => {
         recognition.onresult = async (event) => {
           const spoken = event.results[event.results.length - 1][0].transcript;
           setTranscript(spoken);
-        
+
           setMessages((prev) => [
             ...prev,
             { sender: "user", text: spoken, isAI: false },
           ]);
-        setLoading(true)
-          
+          setLoading(true);
+
           try {
             const airesponse = await AIModel(
               DiscussionRoomData.topic,
               DiscussionRoomData.coachingOption,
               spoken
             );
-            console.log("ai response:", airesponse)
-            // const aiText = airesponse.content || airesponse.text;
-            const aiText = airesponse.parts?.[0]?.text || "No response from AI.";
+            console.log("ai response:", airesponse);
 
-            
+            // Extract text from the AI response consistently
+            let aiText;
+            if (airesponse.parts && airesponse.parts.length > 0) {
+              aiText = airesponse.parts[0].text;
+            } else if (airesponse.content) {
+              aiText = airesponse.content;
+            } else if (airesponse.text) {
+              aiText = airesponse.text;
+            } else {
+              aiText = "No response from AI.";
+            }
+
             setMessages((prev) => [
               ...prev,
-              { sender: "ai", text: airesponse.content || airesponse.text, isAI: true },
+              { sender: "ai", text: aiText, isAI: true },
             ]);
-            speakResponse(aiText)
+            setLoading(false);
+            speakResponse(aiText);
           } catch (error) {
             console.error("AI error:", error);
             setMessages((prev) => [
               ...prev,
-              { sender: "ai", text: "Sorry, I encountered an error processing your response.", isAI: true },
+              {
+                sender: "ai",
+                text: "Sorry, I encountered an error processing your response.",
+                isAI: true,
+              },
             ]);
-            // console.log("sliced",msg.slice(-2));
-            // console.log(messages)
+            setLoading(false);
           }
         };
-        
+
         recognition.onerror = (event) => {
           console.error("Speech recognition error:", event.error);
         };
@@ -110,7 +125,7 @@ const DiscussionRoom = () => {
 
         recognitionRef.current = recognition;
         recognition.start();
-        
+
         return () => {
           recognition.onend = null;
           recognition.stop();
@@ -121,13 +136,13 @@ const DiscussionRoom = () => {
     }
   }, [isConnected, DiscussionRoomData]);
 
-const speakResponse = (text)=>{
-  const utterance = new SpeechSynthesisUtterance(text);
-utterance.pitch = 1.2; // 0 to 2 (normal = 1)
-utterance.rate = 1;    // 0.1 to 10 (normal = 1)
-utterance.voice = speechSynthesis.getVoices()[0]; // pick a specific voice
-speechSynthesis.speak(utterance);
-}
+  const speakResponse = (text) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.pitch = 1.2; // 0 to 2 (normal = 1)
+    utterance.rate = 1; // 0.1 to 10 (normal = 1)
+    utterance.voice = speechSynthesis.getVoices()[0]; // pick a specific voice
+    speechSynthesis.speak(utterance);
+  };
 
   const handleConnect = async () => {
     if (!RecordRTCInstance) {
@@ -146,7 +161,6 @@ speechSynthesis.speak(utterance);
       micStreamRef.current = stream;
       setIsConnected(true);
       console.log("Mic started");
-      // setLoading(true)
     } catch (err) {
       console.error("Error accessing microphone:", err);
     }
@@ -155,7 +169,8 @@ speechSynthesis.speak(utterance);
   const disconnect = async (e) => {
     e.preventDefault();
     setIsConnected(false);
-    setLoading(true)
+    setLoading(true);
+
     if (recognitionRef.current) {
       recognitionRef.current.onend = null;
       recognitionRef.current.stop();
@@ -170,35 +185,56 @@ speechSynthesis.speak(utterance);
       micStreamRef.current = null;
       console.log("Mic stream stopped.");
     }
-    setLoading(false)
+
     await updateConversation({
       id: DiscussionRoomData._id,
-      conversation:messages
-    })
+      conversation: messages,
+    });
 
-    setEnableFeedback(true)
+    setEnableFeedback(true);
+await generateFeedback(); 
+setLoading(false);
 
-    const feedback = await AIModelToGenerateFeedbackAndNotes(
-      DiscussionRoomData.coachingOption,
-      messages
-    );
-    const aiFeedback = feedback.parts?.[0]?.text || "No feedback from AI.";
-    setFeedback(aiFeedback);
-    console.log("feedback:", aiFeedback)
-    
+  };
+
+  const generateFeedback = async () => {
+    console.log("feedback gen");
+
+    try {
+      const feedback = await AIModelToGenerateFeedbackAndNotes(
+        DiscussionRoomData.coachingOption,
+        messages
+      );
+
+      let aiFeedback;
+      if (feedback.parts && feedback.parts.length > 0) {
+        aiFeedback = feedback.parts[0].text;
+      } else if (feedback.content) {
+        aiFeedback = feedback.content;
+      } else if (feedback.text) {
+        aiFeedback = feedback.text;
+      } else {
+        aiFeedback = "No feedback from AI.";
+      }
+
+      setFeedback(aiFeedback);
+      //   console.log("feedback:", aiFeedback);
+    } catch (error) {
+      console.log("feedback error", error);
+    }
   };
 
   const isLoading = !DiscussionRoomData || !RecordRTCInstance;
 
   if (isLoading) {
-    return (
-      <div className="text-center py-20">Loading resources...</div>
-    );
+    return <div className="text-center py-20">Loading resources...</div>;
   }
-
   return (
     <div className="w-full max-w-7xl mx-auto mt-8 px-6 md:px-8">
-      <h1 className="text-xl font-semibold mb-4">Mockup Interview on {DiscussionRoomData.topic} by {DiscussionRoomData.expertName}</h1>
+      <h1 className="text-xl font-semibold mb-4">
+        {DiscussionRoomData.coachingOption} on topic {DiscussionRoomData.topic}{" "}
+        by Expert {DiscussionRoomData.expertName}
+      </h1>
 
       <div className="flex flex-col md:flex-row gap-4">
         {/* Main interview area */}
@@ -209,7 +245,7 @@ speechSynthesis.speak(utterance);
                 <img
                   src={expert.image || "/placeholder-expert.jpg"}
                   alt={expert.name}
-                  className = {`${isConnected? "animate-pulse w-full h-full object-cover" : "w-full h-full object-cover"}`}
+                  className={`${isConnected ? "animate-pulse w-full h-full object-cover" : "w-full h-full object-cover"}`}
                 />
               </div>
               <p className="mt-2 text-center">{expert.name || "Expert"}</p>
@@ -228,11 +264,12 @@ speechSynthesis.speak(utterance);
                 onClick={handleConnect}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-full"
               >
-                Connect Now{loading && <Loader className="animate-spin"/>}
+                Connect Now{" "}
+                {loading && <Loader className="ml-2 animate-spin" />}
               </Button>
             ) : (
               <Button variant={"destructive"} onClick={disconnect}>
-                Disconnect
+                Disconnect {loading && <Loader className="ml-2 animate-spin" />}
               </Button>
             )}
           </div>
@@ -250,8 +287,7 @@ speechSynthesis.speak(utterance);
                       : "bg-gray-200 text-gray-800"
                   } rounded-xl py-2 px-4 text-sm max-w-full`}
                 >
-                
-                  {msg.text} 
+                  {msg.text}
                 </div>
               </div>
             ))}
@@ -262,20 +298,50 @@ speechSynthesis.speak(utterance);
           </div>
 
           <div className="mt-2 text-xs text-gray-500 px-2">
-            At the end of the conversation, we'll automatically generate feedback/notes.
-            {feedback && (
-  <div className="mt-4 p-4 bg-yellow-100 rounded-md text-sm text-gray-800">
-    <strong>AI Feedback:</strong>
+            At the end of the conversation, we'll automatically generate
+            feedback/notes.
+           
+          </div>
+        </div>
+      </div>
+      <div>
+
+      {/* {enableFeedback && (
+  <Button onClick={generateFeedback} className="mt-4 bg-green-600 text-white">
+    Generate Feedback
+  </Button>
+)} */}
+
+      {enableFeedback && feedback && (
+  <div className="mt-4 p-4 bg-green-100 text-green-900 rounded-lg">
+    <h2 className="text-lg font-semibold mb-2">AI Feedback:</h2>
     <p>{feedback}</p>
   </div>
 )}
 
-          
-          </div>
-        </div>
+{enableFeedback  && (
+  <div className="mt-4 p-4 rounded-lg">
+    <h2 className="text-lg font-semibold mb-2">Complete Chat:</h2>
+    <p>{messages.map((msg, index) => (
+              <div key={index} className="flex mb-3">
+                <div
+                  className={`${
+                    msg.isAI
+                      ? "bg-gray-200 text-gray-800"
+                      : "bg-gray-200 text-gray-800"
+                  } rounded-xl py-2 px-4 text-sm max-w-full`}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            ))}</p>
+  </div>
+)}
+
       </div>
     </div>
   );
 };
+
 
 export default DiscussionRoom;
