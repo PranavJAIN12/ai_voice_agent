@@ -32,6 +32,7 @@ const DiscussionRoom = () => {
   const [feedback, setFeedback] = useState(null);
 
   const updateConversation = useMutation(api.DiscussionRoom.updateConversation);
+  const updateSummary = useMutation(api.DiscussionRoom.updateSummary)
 
   useEffect(() => {
     const loadRecorder = async () => {
@@ -222,6 +223,10 @@ setLoading(false);
     } catch (error) {
       console.log("feedback error", error);
     }
+    await updateSummary({
+      id: DiscussionRoomData._id,
+      summary: aifeedback
+    })
   };
 
   const isLoading = !DiscussionRoomData || !RecordRTCInstance;

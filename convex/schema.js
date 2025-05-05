@@ -12,7 +12,8 @@ export default defineSchema({
         coachingOption: v.string(),
         topic: v.string(),
         expertName: v.string(),
-        conversation: v.optional(v.any())
+        conversation: v.optional(v.any()),
+        summary: v.optional(v.any())
     })
 
 })
