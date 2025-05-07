@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -17,6 +17,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { UserContext } from "@/app/_context/UserContext";
 
 const UserImputDial = ({ children, coachingOpt }) => {
   const [selectedExpert, setSelectedExpert] = useState("");
@@ -25,6 +26,7 @@ const UserImputDial = ({ children, coachingOpt }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const createDiscussionRoom = useMutation(api.DiscussionRoom.createNewRoom);
   const router = useRouter();
+  const {userData} = useContext(UserContext)
 
   const onClickNext = async () => {
     try {
@@ -33,6 +35,7 @@ const UserImputDial = ({ children, coachingOpt }) => {
         topic: topic,
         coachingOption: coachingOpt.name,
         expertName: selectedExpert,
+        uid: userData?._id
       });
       console.log(result);
       setOpenDialog(false);
