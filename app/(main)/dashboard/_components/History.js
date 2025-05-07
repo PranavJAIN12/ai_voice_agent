@@ -1,8 +1,10 @@
 "use client";
 import { UserContext } from "@/app/_context/UserContext";
+import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { ExpertsList } from "@/services/options";
 import { useConvex } from "convex/react";
+import moment from "moment";
 import Image from "next/image";
 import React, { useContext, useEffect, useState } from "react";
 
@@ -50,24 +52,31 @@ const History = () => {
             .map((data, index) => (
               <div
                 key={index}
-                className="bg-white shadow-md rounded-xl p-5 border border-gray-200 hover:shadow-lg transition"
+                className="bg-white shadow-md rounded-xl p-5 border border-gray-200 hover:shadow-lg transition group flex justify-around items-center mb-8"
               >
-                <div className="mb-4">
+                <div>
                   <Image
                     src={getAbstractImg(data.coachingOption)}
                     height={70}
                     width={70}
                     alt="abstract img"
-                    className="rounded-md object-cover"
+                    className="rounded-4xl object-cover "
                   />
                 </div>
-                <h2 className="text-xl font-semibold mb-2 capitalize">{data.topic}</h2>
+                <div className="ml-3 ">
+
+                <h2 className="text-xl font-semibold mb-2 capitalize ">{data.topic}</h2>
                 <p className="text-sm text-gray-600 mb-1">
                   <span className="font-medium">Coaching Type:</span> {data.coachingOption}
                 </p>
                 <p className="text-sm text-gray-600">
                   <span className="font-medium">Expert:</span> {data.expertName || "N/A"}
                 </p>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Created</span> { moment(data._creationTime).fromNow() || "N/A"}
+                </p>
+                </div>
+                <Button className="ml-3 invisible group-hover:visible">View notes</Button>
               </div>
             ))}
         </div>
