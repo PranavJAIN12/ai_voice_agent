@@ -105,7 +105,7 @@ const History = () => {
                 <div className="px-5 pb-4 pt-1">
                   <Link href={'/view-summary/'+data._id}>
                   <Button 
-                    className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 hover:text-gray-900 transition-colors"
+                    className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 hover:text-gray-900 transition-colors cursor-pointer"
                     >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

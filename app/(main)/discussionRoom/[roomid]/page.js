@@ -11,6 +11,7 @@ import {
   AIModelToGenerateFeedbackAndNotes,
 } from "@/services/globalSer";
 import { Loader } from "lucide-react";
+import Markdown from "react-markdown";
 
 let silenceTimeout = null;
 
@@ -30,9 +31,17 @@ const DiscussionRoom = () => {
   const [loading, setLoading] = useState(false);
   const [enableFeedback, setEnableFeedback] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const messagesEndRef = useRef(null);
 
   const updateConversation = useMutation(api.DiscussionRoom.updateConversation);
-  const updateSummary = useMutation(api.DiscussionRoom.updateSummary)
+  const updateSummary = useMutation(api.DiscussionRoom.updateSummary);
+
+  // Scroll to bottom of messages
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   useEffect(() => {
     const loadRecorder = async () => {
@@ -193,9 +202,8 @@ const DiscussionRoom = () => {
     });
 
     setEnableFeedback(true);
-await generateFeedback(); 
-setLoading(false);
-
+    await generateFeedback();
+    setLoading(false);
   };
 
   const generateFeedback = async () => {
@@ -220,133 +228,225 @@ setLoading(false);
 
       setFeedback(aiFeedback);
       //   console.log("feedback:", aiFeedback);
+
+      await updateSummary({
+        id: DiscussionRoomData._id,
+        summary: aiFeedback // Fixed variable name (was aifeedback)
+      });
     } catch (error) {
       console.log("feedback error", error);
     }
-    await updateSummary({
-      id: DiscussionRoomData._id,
-      summary: aifeedback
-    })
   };
 
   const isLoading = !DiscussionRoomData || !RecordRTCInstance;
 
   if (isLoading) {
-    return <div className="text-center py-20">Loading resources...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-gray-500" />
+          <p className="text-gray-600">Loading resources...</p>
+        </div>
+      </div>
+    );
   }
-  return (
-    <div className="w-full max-w-7xl mx-auto mt-8 px-6 md:px-8">
-      <h1 className="text-xl font-semibold mb-4">
-        {DiscussionRoomData.coachingOption} on topic {DiscussionRoomData.topic}{" "}
-        by Expert {DiscussionRoomData.expertName}
-      </h1>
 
-      <div className="flex flex-col md:flex-row gap-4">
-        {/* Main interview area */}
-        <div className="w-full md:w-4/5 dark:bg-gray-800 bg-gray-100 rounded-xl overflow-hidden relative min-h-[500px] flex flex-col items-center justify-center">
-          {expert && (
-            <div className="flex flex-col items-center mt-8">
-              <div className="w-16 h-16 rounded-full overflow-hidden">
-                <img
-                  src={expert.image || "/placeholder-expert.jpg"}
-                  alt={expert.name}
-                  className={`${isConnected ? "animate-pulse w-full h-full object-cover" : "w-full h-full object-cover"}`}
-                />
+  return (
+    <div className="container mx-auto px-4 sm:px-6 py-6 md:py-8">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+        {/* Header */}
+        <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
+          <h1 className="text-lg sm:text-xl font-semibold">
+            {DiscussionRoomData.coachingOption}{" "}
+            <span className="text-gray-500 dark:text-gray-400">on topic</span>{" "}
+            {DiscussionRoomData.topic}{" "}
+            <span className="text-gray-500 dark:text-gray-400">with Expert</span>{" "}
+            {DiscussionRoomData.expertName}
+          </h1>
+        </div>
+
+        <div className="flex flex-col lg:flex-row">
+          {/* Main interview area */}
+          <div className="w-full lg:w-3/4 bg-gray-100 dark:bg-gray-800 relative min-h-[400px] md:min-h-[500px] flex flex-col">
+            {/* Expert display */}
+            <div className="flex-1 flex flex-col items-center justify-center p-4">
+              {expert && (
+                <div className="flex flex-col items-center">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-white dark:border-gray-700 shadow-md">
+                    <img
+                      src={expert.image || "/placeholder-expert.jpg"}
+                      alt={expert.name}
+                      className={`w-full h-full object-cover ${
+                        isConnected ? "animate-pulse" : ""
+                      }`}
+                    />
+                  </div>
+                  <p className="mt-3 text-lg font-medium">
+                    {expert.name || "Expert"}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {isConnected ? "Connected" : "Waiting to connect..."}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Self view */}
+            <div className="absolute bottom-4 right-4 border-2 border-white dark:border-gray-700 p-3 sm:p-4 bg-gray-200 dark:bg-gray-700 rounded-xl shadow-md">
+              <UserButton />
+            </div>
+
+            {/* Connect/Disconnect button */}
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center">
+              {!isConnected ? (
+                <Button
+                  onClick={handleConnect}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-full shadow-md"
+                  disabled={loading}
+                >
+                  Connect Now{" "}
+                  {loading && (
+                    <Loader size={18} className="ml-2 animate-spin" />
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  variant={"destructive"}
+                  onClick={disconnect}
+                  className="font-medium py-2 px-6 rounded-full shadow-md"
+                  disabled={loading}
+                >
+                  End Session{" "}
+                  {loading && (
+                    <Loader size={18} className="ml-2 animate-spin" />
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Chat + transcript */}
+          <div className="w-full lg:w-1/4 bg-white dark:bg-gray-900 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 flex flex-col h-[400px] lg:h-auto">
+            <div className="p-3 border-b border-gray-100 dark:border-gray-800">
+              <h3 className="font-medium text-sm">Conversation</h3>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-3">
+              <div className="space-y-3">
+                {messages.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+                    Your conversation will appear here
+                  </div>
+                ) : (
+                  messages.map((msg, index) => (
+                    <div
+                      key={index}
+                      className={`flex ${
+                        msg.isAI ? "justify-start" : "justify-end"
+                      }`}
+                    >
+                      <div
+                        className={`rounded-xl py-2 px-3 text-sm max-w-[85%] ${
+                          msg.isAI
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))
+                )}
+                <div ref={messagesEndRef} />
               </div>
-              <p className="mt-2 text-center">{expert.name || "Expert"}</p>
+            </div>
+
+            <div className="p-3 border-t border-gray-100 dark:border-gray-800">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="font-medium mb-1">Live Transcript:</div>
+                <div className="italic">{transcript || "Listening..."}</div>
+              </div>
+
+              <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                At the end of the conversation, we'll automatically generate
+                feedback and notes.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Feedback section */}
+      {enableFeedback && (
+        <div className="mt-6 space-y-6">
+          {feedback && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-xl p-5 shadow-sm">
+              <h2 className="text-lg font-semibold mb-3 flex items-center text-green-800 dark:text-green-400">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Expert Feedback
+              </h2>
+              <div className="prose dark:prose-invert max-w-none text-green-800 dark:text-green-200">
+                <Markdown>{feedback}</Markdown>
+              </div>
             </div>
           )}
 
-          {/* Self view */}
-          <div className="absolute bottom-4 right-4 border-2 p-5 px-9 bg-gray-300 rounded-xl">
-            <UserButton />
-          </div>
-
-          {/* Connect/Disconnect button */}
-          <div className="absolute bottom-8 left-0 right-0 flex justify-center">
-            {!isConnected ? (
-              <Button
-                onClick={handleConnect}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-full"
+          <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5 shadow-sm">
+            <h2 className="text-lg font-semibold mb-3 flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2 text-gray-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                Connect Now{" "}
-                {loading && <Loader className="ml-2 animate-spin" />}
-              </Button>
-            ) : (
-              <Button variant={"destructive"} onClick={disconnect}>
-                Disconnect {loading && <Loader className="ml-2 animate-spin" />}
-              </Button>
-            )}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                />
+              </svg>
+              Complete Conversation
+            </h2>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-2 max-h-[400px] overflow-y-auto">
+              {messages.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">
+                  No conversation data available.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((msg, index) => (
+                    <div key={index} className="flex flex-col">
+                      <div className="text-xs font-medium text-gray-500 mb-1">
+                        {msg.isAI ? "Expert:" : "You:"}
+                      </div>
+                      <div className="bg-white dark:bg-gray-700 rounded-lg p-3 text-sm">
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-        {/* Chat + transcript */}
-        <div className="w-full md:w-1/5 dark:bg-gray-800 bg-white rounded-xl p-4 flex flex-col h-[500px]">
-          <div className="flex-1 overflow-y-auto space-y-3">
-            {messages.map((msg, index) => (
-              <div key={index} className="flex mb-3">
-                <div
-                  className={`${
-                    msg.isAI
-                      ? "dark:bg-blue-300 bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-800"
-                  } rounded-xl py-2 px-4 text-sm max-w-full`}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 text-xs dark:text-gray-200 text-gray-500 px-2">
-            <strong>Live Transcript:</strong> {transcript || "—"}
-          </div>
-
-          <div className="mt-2 text-xs text-gray-500 px-2">
-            At the end of the conversation, we'll automatically generate
-            feedback/notes.
-           
-          </div>
-        </div>
-      </div>
-      <div>
-
-      {/* {enableFeedback && (
-  <Button onClick={generateFeedback} className="mt-4 bg-green-600 text-white">
-    Generate Feedback
-  </Button>
-)} */}
-
-      {enableFeedback && feedback && (
-  <div className="mt-4 p-4 dark:bg-green-800 dark:text-gray-300 bg-green-100 text-green-900 rounded-lg">
-    <h2 className="text-lg font-semibold mb-2">AI Feedback:</h2>
-    <p>{feedback}</p>
-  </div>
-)}
-
-{enableFeedback  && (
-  <div className="mt-4 p-4 rounded-lg">
-    <h2 className="text-lg font-semibold mb-2">Complete Chat:</h2>
-    <p>{messages.map((msg, index) => (
-              <div key={index} className="flex mb-3">
-                <div
-                  className={`${
-                    msg.isAI
-                      ? "bg-gray-200 text-gray-800"
-                      : "bg-gray-200 text-gray-800"
-                  } rounded-xl py-2 px-4 text-sm max-w-full`}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            ))}</p>
-  </div>
-)}
-
-      </div>
+      )}
     </div>
   );
 };
-
 
 export default DiscussionRoom;
