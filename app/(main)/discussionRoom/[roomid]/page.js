@@ -243,7 +243,7 @@ setLoading(false);
 
       <div className="flex flex-col md:flex-row gap-4">
         {/* Main interview area */}
-        <div className="w-full md:w-4/5 bg-gray-100 rounded-xl overflow-hidden relative min-h-[500px] flex flex-col items-center justify-center">
+        <div className="w-full md:w-4/5 dark:bg-gray-800 bg-gray-100 rounded-xl overflow-hidden relative min-h-[500px] flex flex-col items-center justify-center">
           {expert && (
             <div className="flex flex-col items-center mt-8">
               <div className="w-16 h-16 rounded-full overflow-hidden">
@@ -281,14 +281,14 @@ setLoading(false);
         </div>
 
         {/* Chat + transcript */}
-        <div className="w-full md:w-1/5 bg-white rounded-xl p-4 flex flex-col h-[500px]">
+        <div className="w-full md:w-1/5 dark:bg-gray-800 bg-white rounded-xl p-4 flex flex-col h-[500px]">
           <div className="flex-1 overflow-y-auto space-y-3">
             {messages.map((msg, index) => (
               <div key={index} className="flex mb-3">
                 <div
                   className={`${
                     msg.isAI
-                      ? "bg-blue-500 text-white"
+                      ? "dark:bg-blue-300 bg-blue-500 text-white"
                       : "bg-gray-200 text-gray-800"
                   } rounded-xl py-2 px-4 text-sm max-w-full`}
                 >
@@ -298,7 +298,7 @@ setLoading(false);
             ))}
           </div>
 
-          <div className="mt-4 text-xs text-gray-500 px-2">
+          <div className="mt-4 text-xs dark:text-gray-200 text-gray-500 px-2">
             <strong>Live Transcript:</strong> {transcript || "—"}
           </div>
 
@@ -318,7 +318,7 @@ setLoading(false);
 )} */}
 
       {enableFeedback && feedback && (
-  <div className="mt-4 p-4 bg-green-100 text-green-900 rounded-lg">
+  <div className="mt-4 p-4 dark:bg-green-800 dark:text-gray-300 bg-green-100 text-green-900 rounded-lg">
     <h2 className="text-lg font-semibold mb-2">AI Feedback:</h2>
     <p>{feedback}</p>
   </div>
