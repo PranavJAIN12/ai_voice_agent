@@ -1,0 +1,4 @@
+Instead of word count, use an npm package like gpt-3-encoder or @dqbd/tiktoken to estimate tokens like OpenAI.
+
+
+use new text to speech

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
@@ -12,6 +12,7 @@ import {
 } from "@/services/globalSer";
 import { Loader } from "lucide-react";
 import Markdown from "react-markdown";
+import { UserContext } from "@/app/_context/UserContext";
 
 let silenceTimeout = null;
 
@@ -32,10 +33,11 @@ const DiscussionRoom = () => {
   const [enableFeedback, setEnableFeedback] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const messagesEndRef = useRef(null);
+  const {userData, setUserData} = useContext(UserContext);
 
   const updateConversation = useMutation(api.DiscussionRoom.updateConversation);
   const updateSummary = useMutation(api.DiscussionRoom.updateSummary);
-
+  const updateCredits = useMutation(api.users.updateCredits);
   // Scroll to bottom of messages
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -92,6 +94,7 @@ const DiscussionRoom = () => {
               spoken
             );
             console.log("ai response:", airesponse);
+            // await updateUserCreditMethod(airesponse)
 
             // Extract text from the AI response consistently
             let aiText;
@@ -111,6 +114,7 @@ const DiscussionRoom = () => {
             ]);
             setLoading(false);
             speakResponse(aiText);
+            await updateUserCreditMethod(aiText)
           } catch (error) {
             console.error("AI error:", error);
             setMessages((prev) => [
@@ -237,6 +241,24 @@ const DiscussionRoom = () => {
       console.log("feedback error", error);
     }
   };
+
+ const updateUserCreditMethod = async (text) => {
+  if (typeof text !== "string") return;
+
+  const userToken = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const newCredits = Math.max(Number(userData.credits) - userToken, 0);
+
+  await updateCredits({
+    id: userData._id,
+    credits: newCredits
+  });
+
+  setUserData((prev) => ({
+    ...prev,
+    credits: newCredits
+  }));
+};
+
 
   const isLoading = !DiscussionRoomData || !RecordRTCInstance;
 

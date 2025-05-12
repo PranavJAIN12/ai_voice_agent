@@ -110,7 +110,7 @@ const Feedback = () => {
                 <div className=" px-5 py-3 flex justify-end border-t border-gray-100">
                   <Link href={"/view-summary/"+ data._id}>
                   <Button 
-                    className=" hover:bg-gray-100 text-gray-800 border border-gray-200 flex items-center cursor-pointer"
+                    className=" bg-gray-100 text-gray-800 border border-gray-200 flex items-center cursor-pointer"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
