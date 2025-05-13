@@ -27,8 +27,22 @@ const UserImputDial = ({ children, coachingOpt }) => {
   const createDiscussionRoom = useMutation(api.DiscussionRoom.createNewRoom);
   const router = useRouter();
   const {userData} = useContext(UserContext)
+  
+
+  const FREE_CREDIT_LIMIT = 5000;
+
 
   const onClickNext = async () => {
+   const isPaidUser = Boolean(userData?.subscriptionId);
+const maxCredits = isPaidUser ? 50000 : FREE_CREDIT_LIMIT;
+const creditsRemaining = userData?.credits || 0;
+
+if (creditsRemaining <= 0) {
+  alert("You’ve used all your tokens. Please upgrade to continue.");
+  router.push("/dashboard");
+  return;
+}
+
     try {
       setLoading(true);
       const result = await createDiscussionRoom({
@@ -41,6 +55,7 @@ const UserImputDial = ({ children, coachingOpt }) => {
       setOpenDialog(false);
       router.push("/discussionRoom/" + result);
       setLoading(false);
+
     } catch (error) {
       console.error("Error occured:", error);
     }

@@ -35,7 +35,7 @@ const Credits = () => {
       </div>
       <hr className="mb-5 dark:bg-white"/>
       <div className="creditsData">
-        <h1 className="font-bold">Token Usage</h1>
+        <h1 className="font-bold">Token Left</h1>
         <p>{userData?.credits}/{userData?.subscriptionId?'50,000':'5000'}</p>
         <Progress value={calculateProgress()} className="my-3"/>
 

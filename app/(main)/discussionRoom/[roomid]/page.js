@@ -208,6 +208,7 @@ const DiscussionRoom = () => {
     setEnableFeedback(true);
     await generateFeedback();
     setLoading(false);
+    alert(`you are left with ${userData.credits} Credits` )
   };
 
   const generateFeedback = async () => {
