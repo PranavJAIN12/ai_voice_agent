@@ -6,6 +6,7 @@ import React from 'react'
 import Image from 'next/image';
 import { ChevronRight } from 'lucide-react';
 import UserImputDial from './UserImputDial';
+import ProfileDialog from './ProfileDialog';
 
 const FeatureAssistant = () => {
     const user = useUser();
@@ -22,10 +23,13 @@ const FeatureAssistant = () => {
                         <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
                     </h1>
                 </div>
+                <ProfileDialog>
+
                 <Button variant="outline" className="mt-4 md:mt-0 flex items-center gap-2">
                     Profile Settings
                     <ChevronRight className="h-4 w-4" />
                 </Button>
+                </ProfileDialog>
             </header>
 
             {/* Experts Grid with CSS Animation */}
