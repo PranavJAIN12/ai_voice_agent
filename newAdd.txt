@@ -2,3 +2,10 @@ Instead of word count, use an npm package like gpt-3-encoder or @dqbd/tiktoken t
 
 
 use new text to speech
+
+
+remember history
+
+
+
+if it is a lecture it should provide notes, not chat summary

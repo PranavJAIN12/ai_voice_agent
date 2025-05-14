@@ -13,10 +13,13 @@ import {
 import { Loader } from "lucide-react";
 import Markdown from "react-markdown";
 import { UserContext } from "@/app/_context/UserContext";
+import { useRouter } from "next/navigation";
 
 let silenceTimeout = null;
 
+
 const DiscussionRoom = () => {
+  const router = useRouter();
   const { roomid } = useParams();
   const DiscussionRoomData = useQuery(api.DiscussionRoom.GetDiscussionRoom, {
     id: roomid,
@@ -80,6 +83,14 @@ const DiscussionRoom = () => {
         recognition.onresult = async (event) => {
           const spoken = event.results[event.results.length - 1][0].transcript;
           setTranscript(spoken);
+
+          if(userData?.credits==0){
+            recognition.stop();
+            recognitionRef.current.stop();
+            alert("Tokens Finished, Please purchase new credits for further chat")
+            // router.push('/dashboard')
+            return;
+          }
 
           setMessages((prev) => [
             ...prev,

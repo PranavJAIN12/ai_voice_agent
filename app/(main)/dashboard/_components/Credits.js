@@ -13,8 +13,12 @@ const Credits = () => {
 
   const calculateProgress=()=>{
     if(userData?.subscriptionId){
-        // console.log((userData.credits/50000)*100);
+        console.log((userData.credits/50000)*100);
         return Number(userData.credits/50000)*100
+    }
+    else{
+      console.log((userData.credits/5000)*100);
+        return Number(userData.credits/5000)*100
     }
     
   }
