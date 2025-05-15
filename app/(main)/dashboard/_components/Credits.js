@@ -4,6 +4,7 @@ import { useUser } from "@stackframe/stack";
 import Image from "next/image";
 import React, { useContext } from "react";
 import { Progress } from "@/components/ui/progress"
+import { Button } from "@/components/ui/button";
 
 
 const Credits = () => {
@@ -50,15 +51,15 @@ const Credits = () => {
 
         
         {!userData?.subscriptionId && (
-  <button
-    className="mt-4   px-4 py-2 rounded-lg  transition"
+  <Button
+    className="mt-4   px-4 py-2 rounded-lg  transition items-center justify-center"
     onClick={() => {
       // Replace with actual checkout link or function
       window.location.href = "/api/checkout"; // or your Stripe checkout route
     }}
   >
     Upgrade to Pro – $10/month
-  </button>
+  </Button>
 )}
 
 
