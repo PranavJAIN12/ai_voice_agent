@@ -150,7 +150,7 @@ export default function LandingPage() {
             
             {/* Social proof */}
             <div className="mt-12 pt-6 border-t border-border/50 text-sm text-muted-foreground">
-              <p>Trusted by 500+ users from leading organizations worldwide</p>
+              <p>Trusted by many users from leading organizations worldwide</p>
               <div className="mt-4 flex flex-wrap justify-center gap-8">
                 {["TechCorp", "EduLearn", "GlobalSpeak", "FutureTalent"].map((company) => (
                   <span key={company} className="opacity-70 hover:opacity-100 transition-opacity">
@@ -243,7 +243,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[
               {
-                title: "Lecturer",
+                title: "Topic-Based Lecture",
                 description: "Learn complex topics through clear, structured explanations and interactive Q&A sessions.",
                 icon: "🎓",
                 delay: 100
@@ -255,13 +255,13 @@ export default function LandingPage() {
                 delay: 200
               },
               {
-                title: "Language Coach",
+                title: "Language Skills Development",
                 description: "Enhance your language skills through natural conversations with pronunciation guidance.",
                 icon: "🗣️",
                 delay: 300
               },
               {
-                title: "Meditation Guide",
+                title: "Guided Meditation",
                 description: "Develop mindfulness and mental clarity with guided meditation sessions.",
                 icon: "🧘",
                 delay: 400
@@ -325,8 +325,8 @@ export default function LandingPage() {
                     "CoachLume transformed our team's interview preparation process. The voice interactions feel remarkably natural, and the feedback has helped our candidates improve significantly. It's like having a professional coach available 24/7."
                   </p>
                   <div className="mt-4">
-                    <p className="font-semibold">Sarah Chen</p>
-                    <p className="text-sm text-muted-foreground">Director of HR, TechVision Inc.</p>
+                    <p className="font-semibold">Pranav Jain</p>
+                    <p className="text-sm text-muted-foreground">Founder of CoachLume.</p>
                   </div>
                 </div>
               </div>
