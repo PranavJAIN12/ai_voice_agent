@@ -15,6 +15,7 @@ import Markdown from "react-markdown";
 import { UserContext } from "@/app/_context/UserContext";
 import { useRouter } from "next/navigation";
 
+
 let silenceTimeout = null;
 
 
@@ -161,13 +162,54 @@ const DiscussionRoom = () => {
     }
   }, [isConnected, DiscussionRoomData]);
 
-  const speakResponse = (text) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.pitch = 1.2; // 0 to 2 (normal = 1)
-    utterance.rate = 1; // 0.1 to 10 (normal = 1)
-    utterance.voice = speechSynthesis.getVoices()[0]; // pick a specific voice
-    speechSynthesis.speak(utterance);
+const speakResponse = (text) => {
+  if (!text) return;
+
+  const synth = window.speechSynthesis;
+  synth.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US";
+  utterance.rate = 1;
+  utterance.pitch = 1.2;
+
+  // Wait for voices to be loaded
+  const setVoice = () => {
+    const voices = synth.getVoices();
+    const femaleVoice =
+      voices.find(v => /female/i.test(v.name)) || // Try name-based match
+      voices.find(v => v.name.includes("Google US English")) || // Chrome
+      voices.find(v => v.name.includes("Microsoft Zira")) || // Edge
+      voices.find(v => v.lang === "en-US"); // Fallback
+
+
+  const maleVoice =
+      voices.find(v => v.name.includes("Google UK English Male")) ||
+      voices.find(v => v.name.includes("Microsoft David")) ||
+      voices.find(v => v.name.includes("Microsoft Mark")) ||
+      voices.find(v => v.name.includes("Alex")) || // macOS
+      voices.find(v => v.name.includes("Fred")) || // macOS
+      voices.find(v => v.lang === "en-US"); // Fallback
+   
+    if(DiscussionRoomData.expertName==="Joanna"){
+      utterance.voice= femaleVoice
+    }
+    if(DiscussionRoomData.expertName==="Matthew"){
+      utterance.voice= maleVoice
+    }
+
+    synth.speak(utterance);
   };
+
+  if (synth.getVoices().length === 0) {
+    synth.onvoiceschanged = setVoice;
+  } else {
+    setVoice();
+  }
+};
+
+
+
 
   const handleConnect = async () => {
     if (!RecordRTCInstance) {

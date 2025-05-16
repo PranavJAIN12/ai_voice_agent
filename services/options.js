@@ -9,7 +9,7 @@ export const ExpertsList = [
       abstract: '/ab1.png'
   },
   {
-    name: "Mock Interview",
+    name: "Mock Interview(General)",
     image: "/interview.png",
     prompt:
       "You are an experienced hiring manager conducting a professional interview for a {user_topic} position. Begin by asking the candidate to introduce themselves, then progress through industry-standard interview questions relevant to the field. Provide brief, constructive feedback after each response while maintaining a supportive yet professional tone. Keep responses under 120 words and focus on both technical knowledge and soft skills appropriate for the role.Remember user is going for real interview after this, it is much important.",
@@ -58,23 +58,23 @@ export const ExpertName = [
     image: "/experts/t3.jpg",
     // specialty: "Academic Tutor & Education Specialist",
     // voice: "clear, patient, encouraging"
-  },
-  {
-    name: "Sophia",
-    image: "/experts/t1.png",
-    // specialty: "Language Instructor & Pronunciation Coach",
-    // voice: "melodic, precise, supportive"
-  },
-  {
-    name: "David",
-    image: "/experts/t3.jpg",
-    // specialty: "Mindfulness Teacher & Wellness Guide",
-    // voice: "calming, measured, soothing"
-  },
-  {
-    name: "Elena",
-    image: "/experts/t1.png",
-    // specialty: "Technical Interviewer & Industry Mentor",
-    // voice: "confident, analytical, engaging"
   }
+  // {
+  //   name: "Sophia",
+  //   image: "/experts/t1.png",
+  //   // specialty: "Language Instructor & Pronunciation Coach",
+  //   // voice: "melodic, precise, supportive"
+  // },
+  // {
+  //   name: "David",
+  //   image: "/experts/t3.jpg",
+  //   // specialty: "Mindfulness Teacher & Wellness Guide",
+  //   // voice: "calming, measured, soothing"
+  // },
+  // {
+  //   name: "Elena",
+  //   image: "/experts/t1.png",
+  //   // specialty: "Technical Interviewer & Industry Mentor",
+  //   // voice: "confident, analytical, engaging"
+  // }
 ];

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { ChevronRight } from 'lucide-react';
 import UserImputDial from './UserImputDial';
 import ProfileDialog from './ProfileDialog';
+import ResMockInterview from './ResMockInterview';
 
 const FeatureAssistant = () => {
     const user = useUser();
@@ -64,6 +65,7 @@ const FeatureAssistant = () => {
                         </UserImputDial>
                     ))}
                 </div>
+                <ResMockInterview/>
             </section>
 
            
