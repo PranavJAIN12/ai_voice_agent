@@ -15,9 +15,7 @@ import Markdown from "react-markdown";
 import { UserContext } from "@/app/_context/UserContext";
 import { useRouter } from "next/navigation";
 
-
 let silenceTimeout = null;
-
 
 const DiscussionRoom = () => {
   const router = useRouter();
@@ -37,7 +35,7 @@ const DiscussionRoom = () => {
   const [enableFeedback, setEnableFeedback] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const messagesEndRef = useRef(null);
-  const {userData, setUserData} = useContext(UserContext);
+  const { userData, setUserData } = useContext(UserContext);
 
   const updateConversation = useMutation(api.DiscussionRoom.updateConversation);
   const updateSummary = useMutation(api.DiscussionRoom.updateSummary);
@@ -85,10 +83,12 @@ const DiscussionRoom = () => {
           const spoken = event.results[event.results.length - 1][0].transcript;
           setTranscript(spoken);
 
-          if(userData?.credits==0){
+          if (userData?.credits == 0) {
             recognition.stop();
             recognitionRef.current.stop();
-            alert("Tokens Finished, Please purchase new credits for further chat")
+            alert(
+              "Tokens Finished, Please purchase new credits for further chat"
+            );
             // router.push('/dashboard')
             return;
           }
@@ -126,7 +126,7 @@ const DiscussionRoom = () => {
             ]);
             setLoading(false);
             speakResponse(aiText);
-            await updateUserCreditMethod(aiText)
+            await updateUserCreditMethod(aiText);
           } catch (error) {
             console.error("AI error:", error);
             setMessages((prev) => [
@@ -162,54 +162,50 @@ const DiscussionRoom = () => {
     }
   }, [isConnected, DiscussionRoomData]);
 
-const speakResponse = (text) => {
-  if (!text) return;
+  const speakResponse = (text) => {
+    if (!text) return;
 
-  const synth = window.speechSynthesis;
-  synth.cancel();
+    const synth = window.speechSynthesis;
+    synth.cancel();
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US";
-  utterance.rate = 1;
-  utterance.pitch = 1.2;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = 1;
+    utterance.pitch = 1.2;
 
-  // Wait for voices to be loaded
-  const setVoice = () => {
-    const voices = synth.getVoices();
-    const femaleVoice =
-      voices.find(v => /female/i.test(v.name)) || // Try name-based match
-      voices.find(v => v.name.includes("Google US English")) || // Chrome
-      voices.find(v => v.name.includes("Microsoft Zira")) || // Edge
-      voices.find(v => v.lang === "en-US"); // Fallback
+    // Wait for voices to be loaded
+    const setVoice = () => {
+      const voices = synth.getVoices();
+      const femaleVoice =
+        voices.find((v) => /female/i.test(v.name)) || // Try name-based match
+        voices.find((v) => v.name.includes("Google US English")) || // Chrome
+        voices.find((v) => v.name.includes("Microsoft Zira")) || // Edge
+        voices.find((v) => v.lang === "en-US"); // Fallback
 
+      const maleVoice =
+        voices.find((v) => v.name.includes("Google UK English Male")) ||
+        voices.find((v) => v.name.includes("Microsoft David")) ||
+        voices.find((v) => v.name.includes("Microsoft Mark")) ||
+        voices.find((v) => v.name.includes("Alex")) || // macOS
+        voices.find((v) => v.name.includes("Fred")) || // macOS
+        voices.find((v) => v.lang === "en-US"); // Fallback
 
-  const maleVoice =
-      voices.find(v => v.name.includes("Google UK English Male")) ||
-      voices.find(v => v.name.includes("Microsoft David")) ||
-      voices.find(v => v.name.includes("Microsoft Mark")) ||
-      voices.find(v => v.name.includes("Alex")) || // macOS
-      voices.find(v => v.name.includes("Fred")) || // macOS
-      voices.find(v => v.lang === "en-US"); // Fallback
-   
-    if(DiscussionRoomData.expertName==="Joanna"){
-      utterance.voice= femaleVoice
+      if (DiscussionRoomData.expertName === "Joanna") {
+        utterance.voice = femaleVoice;
+      }
+      if (DiscussionRoomData.expertName === "Matthew") {
+        utterance.voice = maleVoice;
+      }
+
+      synth.speak(utterance);
+    };
+
+    if (synth.getVoices().length === 0) {
+      synth.onvoiceschanged = setVoice;
+    } else {
+      setVoice();
     }
-    if(DiscussionRoomData.expertName==="Matthew"){
-      utterance.voice= maleVoice
-    }
-
-    synth.speak(utterance);
   };
-
-  if (synth.getVoices().length === 0) {
-    synth.onvoiceschanged = setVoice;
-  } else {
-    setVoice();
-  }
-};
-
-
-
 
   const handleConnect = async () => {
     if (!RecordRTCInstance) {
@@ -261,7 +257,7 @@ const speakResponse = (text) => {
     setEnableFeedback(true);
     await generateFeedback();
     setLoading(false);
-    alert(`you are left with ${userData.credits} Credits` )
+    alert(`you are left with ${userData.credits} Credits`);
   };
 
   const generateFeedback = async () => {
@@ -289,30 +285,29 @@ const speakResponse = (text) => {
 
       await updateSummary({
         id: DiscussionRoomData._id,
-        summary: aiFeedback // Fixed variable name (was aifeedback)
+        summary: aiFeedback, // Fixed variable name (was aifeedback)
       });
     } catch (error) {
       console.log("feedback error", error);
     }
   };
 
- const updateUserCreditMethod = async (text) => {
-  if (typeof text !== "string") return;
+  const updateUserCreditMethod = async (text) => {
+    if (typeof text !== "string") return;
 
-  const userToken = text.trim() ? text.trim().split(/\s+/).length : 0;
-  const newCredits = Math.max(Number(userData.credits) - userToken, 0);
+    const userToken = text.trim() ? text.trim().split(/\s+/).length : 0;
+    const newCredits = Math.max(Number(userData.credits) - userToken, 0);
 
-  await updateCredits({
-    id: userData._id,
-    credits: newCredits
-  });
+    await updateCredits({
+      id: userData._id,
+      credits: newCredits,
+    });
 
-  setUserData((prev) => ({
-    ...prev,
-    credits: newCredits
-  }));
-};
-
+    setUserData((prev) => ({
+      ...prev,
+      credits: newCredits,
+    }));
+  };
 
   const isLoading = !DiscussionRoomData || !RecordRTCInstance;
 
@@ -336,7 +331,9 @@ const speakResponse = (text) => {
             {DiscussionRoomData.coachingOption}{" "}
             <span className="text-gray-500 dark:text-gray-400">on topic</span>{" "}
             {DiscussionRoomData.topic}{" "}
-            <span className="text-gray-500 dark:text-gray-400">with Expert</span>{" "}
+            <span className="text-gray-500 dark:text-gray-400">
+              with Expert
+            </span>{" "}
             {DiscussionRoomData.expertName}
           </h1>
         </div>
@@ -406,7 +403,7 @@ const speakResponse = (text) => {
             <div className="p-3 border-b border-gray-100 dark:border-gray-800">
               <h3 className="font-medium text-sm">Conversation</h3>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-3">
               <div className="space-y-3">
                 {messages.length === 0 ? (

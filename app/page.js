@@ -290,15 +290,7 @@ export default function LandingPage() {
           <div className={`mt-12 text-center transition-all duration-700 delay-500 ${
             expertRolesVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
           }`}>
-            <Link href="/experts">
-              <Button 
-                variant="outline"
-                className="group border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/5 transition-all duration-300"
-              >
-                Explore All Expert Roles
-                <ChevronRight size={16} className="ml-1 transition-transform duration-300 group-hover:translate-x-1" />
-              </Button>
-            </Link>
+            
           </div>
         </div>
       </section>
@@ -333,14 +325,7 @@ export default function LandingPage() {
             </div>
             
             <div className="mt-6 text-center">
-              <Link href="/testimonials">
-                <Button 
-                  variant="ghost"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Read More Success Stories
-                </Button>
-              </Link>
+              
             </div>
           </div>
         </div>
@@ -408,7 +393,7 @@ export default function LandingPage() {
               <h3 className="font-semibold mb-4">Contact</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="https://www.linkedin.com/in/pranav-jain-32179722a/" className="hover:text-blue-500 transition-colors">LinkedIn</Link></li>
-                <li><Link href="https://book-appointment-pranav.vercel.app/" className="hover:text-blue-500 transition-colors">Help Center(book a meeting)</Link></li>
+                <li><Link href="https://book-appointment-pranav.vercel.app/" className="hover:text-blue-500 transition-colors">Help Center (Book a Meeting)</Link></li>
                
               </ul>
             </div>
