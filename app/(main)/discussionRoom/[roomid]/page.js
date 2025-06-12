@@ -222,7 +222,7 @@ const DiscussionRoom = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       micStreamRef.current = stream;
-      setIsConnected(true);
+      setIsConnected(true); 
       console.log("Mic started");
     } catch (err) {
       console.error("Error accessing microphone:", err);

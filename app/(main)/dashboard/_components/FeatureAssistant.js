@@ -8,6 +8,7 @@ import { ChevronRight } from 'lucide-react';
 import UserImputDial from './UserImputDial';
 import ProfileDialog from './ProfileDialog';
 import ResMockInterview from './ResMockInterview';
+import ResumeMockInterviewDialog from './ResMockInterview';
 
 const FeatureAssistant = () => {
     const user = useUser();
@@ -65,7 +66,15 @@ const FeatureAssistant = () => {
                         </UserImputDial>
                     ))}
                 </div>
-                <ResMockInterview/>
+                {/* <ResMockInterview/> */}
+
+                <div className='my-8'>
+
+                   
+                <ResumeMockInterviewDialog>
+                    <Button className="cursor-pointer">Start Resume Interview</Button>
+                </ResumeMockInterviewDialog>
+                </div>
             </section>
 
            

@@ -1,0 +1,40 @@
+resBased interview dialogue box:
+
+add resume, show resume
+
+okk
+using user id, navigate to next page,
+
+ai k data content m, complete data of rwsume send
+
+
+
+  const onClickNext = async () => {
+   const isPaidUser = Boolean(userData?.subscriptionId);
+const maxCredits = isPaidUser ? 50000 : FREE_CREDIT_LIMIT;
+const creditsRemaining = userData?.credits || 0;
+
+if (creditsRemaining <= 0) {
+  alert("You’ve used all your tokens. Please upgrade to continue.");
+  router.push("/dashboard");
+  return;
+}
+
+    try {
+      setLoading(true);
+      const result = await createDiscussionRoom({
+        topic: resumeBaedIn
+        name: name of file
+        expertName: selectedExpert,
+        uid: userData?._id
+      });
+      console.log(result);
+      setOpenDialog(false);
+      router.push("/discussionRoom/" + result);
+      setLoading(false);
+
+    } catch (error) {
+      console.error("Error occured:", error);
+    }
+  };
+

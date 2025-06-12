@@ -15,6 +15,18 @@ export default defineSchema({
         conversation: v.optional(v.any()),
         summary: v.optional(v.any()),
         uid: v.optional(v.id('users')) //it will directly connect to users table
-    })
+    }),
+    ResumeBasedDiscussionRoom: defineTable({
+        coachingOption: v.string(), 
+        topic: v.string(),
+        data: v.optional(v.any()),
+        expertName: v.string(),
+        conversation: v.optional(v.any()),
+        summary: v.optional(v.any()),
+        uid: v.optional(v.id('users')) //it will directly connect to users table
+    }),
+
+
+
 
 })
