@@ -62,7 +62,7 @@ const ResumeMockInterviewDialog = ({ children }) => {
       setLoading(true);
       const result = await createResumeBasedDiscussionRoom({
         topic: resumeText,
-        coachingOption: "Resume Interview",
+        coachingOption: "Resume Based Interview",
         expertName: selectedExpert,
         uid: userData?._id,
         data: resumeData || {},
