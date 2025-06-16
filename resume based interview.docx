@@ -38,3 +38,102 @@ if (creditsRemaining <= 0) {
     }
   };
 
+"Okay, I will analyze the provided PDF content and generate a JSON representation of the (likely) resume data it contains.  I will also formulate some technical interview questions based on potential areas of expertise suggested by the document.
+
+**Here's the plan:**
+
+1.  **Parse the PDF Data:** I'll extract the text and attempt to identify key sections and elements (name, contact information, education, experience, skills, projects). Note: This is *very* difficult without a proper PDF parsing library. I will do my best, but the result will be limited by my ability to understand the text structure.  I'll focus on extracting information related to the text close to hyperlinks, font-styled words, and known resume headings.
+2.  **Create JSON Structure:** I will create a JSON object to store the extracted information, using the fields you specified.
+3.  **Formulate Technical Questions:** Based on the *inferred* technical skills and experiences, I will generate a set of targeted technical questions. Since I don't know the *actual* content, I'll base the questions on common areas of software development and web development mentioned in the PDF syntax (HTML, Javascript, etc).
+
+**Here's the JSON representation (based on the limited PDF data):**
+
+```json
+{
+  "name": "Pranav Jain",
+  "email": "masterpranavjain2@gmail.com",
+  "linkedin": "https://www.linkedin.com/in/pranav-jain-32179722a/",
+  "github": "https://github.com/PranavJAIN12",
+  "portfolio": "https://pranavportfolio-nine.vercel.app/",
+  "projects": [
+    {
+      "name": "new_next_portfolio",
+      "github": "https://github.com/PranavJAIN12/new_next_portfolio",
+      "website": "https://pranavportfolio-nine.vercel.app/"
+    },
+    {
+      "name": "Respondr",
+      "github": "https://github.com/PranavJAIN12/Respondr",
+      "website": "https://respondr.vercel.app/"
+    },
+    {
+      "name": "dailydose",
+      "github": "https://github.com/PranavJAIN12/dailydose"
+    },
+    {
+      "name": "bazaaro",
+      "github": "https://github.com/PranavJAIN12/bazaaro"
+    }
+  ],
+  "skills": [
+      "HTML",
+      "Javascript",
+      "CSS",
+      "Next.js",
+      "Vercel",
+      "Git",
+      "React"
+  ],
+  "education": [],
+  "experience": []
+}
+```
+
+**Technical Interview Questions:**
+
+Given the likely emphasis on web development, here are some interview questions tailored to this profile, based on the presence of projects, github profile links, and assumed tech skills like Next.js and React from the resume headings.
+
+**General JavaScript Questions:**
+
+1.  Explain the difference between `==` and `===` in JavaScript.
+2.  What is the difference between `null`, `undefined` and `undeclared` variables in JavaScript? How would you check for each?
+3.  Explain the concept of closures in JavaScript and provide a practical example of how you've used them.
+4.  What are the differences between `var`, `let`, and `const`?
+5.  Describe the event loop in JavaScript.
+
+**React-Specific Questions:**
+
+6.  What are the key differences between functional components and class components in React? When might you choose one over the other?
+7.  Explain the purpose of React Hooks (e.g., `useState`, `useEffect`). Give an example of a scenario where you would use each.
+8.  How does React's virtual DOM work, and why is it important for performance?
+9.  Describe the different ways to handle state in a React application.  What are the advantages and disadvantages of each approach (e.g., `useState`, `useReducer`, Context API, Redux, Zustand, etc.)?
+10. What is the purpose of `key` prop in React lists? What problems can occur if you don't use it correctly?
+11. Explain the concept of prop drilling and how to avoid it.
+12. What are Higher Order Components (HOCs) in React? What are the alternatives?
+13. What are React fragments and when are they useful?
+
+**Next.js-Specific Questions (Assuming Next.js Expertise):**
+
+14. What are the primary benefits of using Next.js over a plain React application?
+15. Explain the difference between server-side rendering (SSR), static site generation (SSG), and client-side rendering (CSR) in Next.js.  When would you choose each rendering strategy?
+16. How do you handle API routes in Next.js?
+17. How does Next.js handle routing and navigation?  Explain the use of the `<Link>` component.
+18. What are environment variables in Next.js, and how do you configure them?
+19. What are the key considerations for deploying a Next.js application to Vercel?
+
+**General Web Development/Deployment Questions:**
+
+20. What are some strategies for optimizing the performance of a web application? (Consider aspects like code splitting, image optimization, caching, etc.)
+21. Explain the basic principles of responsive web design.
+22. What are the benefits of using a CSS framework like Tailwind CSS or Material UI? What are the potential drawbacks?
+23. Describe your experience with version control systems like Git.  Explain your typical Git workflow.
+24. What are some common web security vulnerabilities (e.g., XSS, CSRF), and how can you prevent them?
+
+**Questions based on PDF syntax:**
+25.  What is the purpose of the `/ProcSet` array in a PDF page object?
+26. What is the role of `/ExtGState` dictionary in PDF, and what kind of properties can be defined within it?
+27. In a PDF, what does the `/Filter/FlateDecode` indicate and why is it commonly used?
+28. What are StructParents in PDF annotations?
+
+I have tried to provide a balance of fundamental and more advanced questions.  The interviewer would likely adjust the difficulty and focus based on the candidate's experience level and the specific requirements of the role. Remember to research the company and position beforehand to tailor your answers and highlight relevant skills.
+"

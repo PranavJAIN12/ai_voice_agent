@@ -207,3 +207,44 @@ Please provide constructive feedback on this conversation based on the above con
         throw error;
     }
 };
+
+export const ResumeBasedInterviewModel = async (prompt, msg) => {
+  console.log("Inside AIModel with prompt:", prompt);
+
+  if (!prompt || !msg) {
+    console.error("Missing required parameter(s):", { prompt, msg });
+    throw new Error("Missing required parameters");
+  }
+
+  const payload = JSON.stringify({
+    contents: [
+      {
+        parts: [
+          { text: prompt },
+          { text: msg }
+        ]
+      }
+    ]
+  });
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GOOGLE_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: payload,
+      }
+    );
+
+    const data = await response.json();
+    console.log("Gemini API result:", data);
+
+    return data.candidates?.[0]?.content || "No response from Gemini";
+  } catch (error) {
+    console.error("Gemini API error:", error);
+    throw error;
+  }
+};
