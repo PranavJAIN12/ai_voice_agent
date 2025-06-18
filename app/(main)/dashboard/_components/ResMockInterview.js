@@ -91,7 +91,8 @@ const ResumeMockInterviewDialog = ({ children }) => {
           {/* Upload Resume */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Upload Resume:</label><br/>
-            <Button onClick={openFilePicker} disabled={fileLoading} className="my-3">
+            <p className="text-gray-600 text-sm">only .pdf </p>
+            <Button onClick={openFilePicker} disabled={fileLoading} className="cursor-pointer my-3">
               {fileLoading ? "Loading..." : "Select File"}
             </Button>
             {filesContent.length > 0 && (
@@ -131,10 +132,10 @@ const ResumeMockInterviewDialog = ({ children }) => {
           {/* Action Buttons */}
           <div className="flex justify-between pt-2">
             <DialogClose asChild>
-              <Button variant={"ghost"}>Cancel</Button>
+              <Button variant={"ghost"} className="cursor-pointer">Cancel</Button>
             </DialogClose>
             <Button
-              disabled={!resumeText || !selectedExpert || loading}
+              disabled={!resumeText || !selectedExpert || loading} className="cursor-pointer"
               onClick={onClickNext}
             >
               {loading && <Loader className="animate-spin mr-2" />}

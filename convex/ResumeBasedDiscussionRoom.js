@@ -32,3 +32,14 @@ export const createNewRoom = mutation({
     return id;
   },
 });
+export const updateConversation = mutation({
+    args:{
+        id:v.id('ResumeBasedDiscussionRoom'),
+        conversation:v.any()
+    },
+    handler:async(ctx,args)=>{
+        await ctx.db.patch(args.id, {
+            conversation: args.conversation
+        })
+    }
+})

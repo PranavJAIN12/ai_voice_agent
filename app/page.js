@@ -95,7 +95,7 @@ export default function LandingPage() {
             <Link href="/dashboard">
               <Button 
                 variant="outline" 
-                className="group border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/5 transition-all duration-300"
+                className="cursor-pointer group border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/5 transition-all duration-300"
               >
                 Dashboard
                 <ChevronRight size={16} className="ml-1 transition-transform duration-300 group-hover:translate-x-1" />
@@ -130,7 +130,7 @@ export default function LandingPage() {
               <Link href="/dashboard">
                 <Button 
                   size="lg" 
-                  className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-300 w-full sm:w-auto"
+                  className=" cursor-pointer group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-300 w-full sm:w-auto"
                 >
                   Start Learning
                   <ChevronRight size={18} className="ml-1 transition-transform duration-300 group-hover:translate-x-1" />
@@ -141,7 +141,7 @@ export default function LandingPage() {
                 <Button 
                   variant="outline" 
                   size="lg"
-                  className="group border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/5 transition-all duration-300 w-full sm:w-auto"
+                  className=" cursor-pointer group border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/5 transition-all duration-300 w-full sm:w-auto"
                 >
                   View Pricing
                 </Button>
