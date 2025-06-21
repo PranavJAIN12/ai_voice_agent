@@ -20,10 +20,10 @@ const AppHeader = () => {
           <Link href="/dashboard" className="hover:text-indigo-200 transition-colors">
             Dashboard
           </Link>
-          <Link href="/experts" className="hover:text-indigo-200 transition-colors">
+          {/* <Link href="/experts" className="hover:text-indigo-200 transition-colors">
             Experts
-          </Link>
-          <Link href="/history" className="hover:text-indigo-200 transition-colors">
+          </Link> */}
+          <Link href="#feedback-section" className="hover:text-indigo-200 transition-colors">
             History
           </Link>
         </nav>

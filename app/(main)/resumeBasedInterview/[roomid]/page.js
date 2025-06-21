@@ -231,18 +231,33 @@ const Page = () => {
 
     setLoading(false);
     setEnableFeedback(true);
+    generateFeedback();
     await updateConversation({
       id: resumeBasedInterviewData._id,
       conversation: messages
     })
   };
 
-  const generateFeedback=async()=>{
-    const aiFeedback = await ResumeBasedInterviewSummary( `You are a technical interviewer providing summary after a interview based on the conversation of ${messages} `
-   , messages)
 
-   setFeedback(aiFeedback)
+const generateFeedback = async () => {
+  const aiFeedback = await ResumeBasedInterviewSummary(
+    `You are a technical interviewer providing summary after a interview based on the conversation of ${messages} `,
+    messages
+  );
+  console.log("ai feedback", aiFeedback);
+
+  // Extract feedback text from Gemini API response
+  let feedbackText = "";
+  if (aiFeedback && aiFeedback.parts && aiFeedback.parts.length > 0) {
+    feedbackText = aiFeedback.parts[0].text;
+  } else if (typeof aiFeedback === "string") {
+    feedbackText = aiFeedback;
+  } else {
+    feedbackText = "No feedback generated.";
   }
+
+  setFeedback(feedbackText);
+};
 
   if (!resumeBasedInterviewData) {
     return (

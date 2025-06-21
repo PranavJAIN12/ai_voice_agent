@@ -37,7 +37,8 @@ const Feedback = () => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 sm:px-6">
+    <div className="max-w-4xl mx-auto py-10 px-4 sm:px-6" id="feedback-section">
+  
       <h1 className="text-3xl font-bold mb-2 t">Expert Feedback</h1>
       <p className="dark:text-gray-300 text-gray-600 mb-8">Review feedback provided by experts on your previous sessions</p>
 
