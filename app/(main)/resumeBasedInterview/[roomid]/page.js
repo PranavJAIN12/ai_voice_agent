@@ -4,10 +4,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResumeBasedInterviewModel, ResumeBasedInterviewSummary } from "@/services/globalSer";
+import {
+  ResumeBasedInterviewModel,
+  ResumeBasedInterviewSummary,
+} from "@/services/globalSer";
 import { Button } from "@/components/ui/button";
 import { UserButton } from "@stackframe/stack";
-import { Loader } from "lucide-react";
+import { Loader, Terminal } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Page = () => {
   const router = useRouter();
@@ -18,7 +22,9 @@ const Page = () => {
     api.ResumeBasedDiscussionRoom.GetResumeBasedDiscussionRoom,
     { id: roomid }
   );
-  const updateConversation = useMutation(api.ResumeBasedDiscussionRoom.updateConversation)
+  const updateConversation = useMutation(
+    api.ResumeBasedDiscussionRoom.updateConversation
+  );
 
   // --------------------- State Management ---------------------
   const [messages, setMessages] = useState([]);
@@ -26,8 +32,8 @@ const Page = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [RecordRTCInstance, setRecordRTCInstance] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [feedback, setFeedback] = useState(null)
-   const [enableFeedback, setEnableFeedback] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [enableFeedback, setEnableFeedback] = useState(false);
   const recognitionRef = useRef(null);
   const micStreamRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -234,30 +240,29 @@ const Page = () => {
     generateFeedback();
     await updateConversation({
       id: resumeBasedInterviewData._id,
-      conversation: messages
-    })
+      conversation: messages,
+    });
   };
 
+  const generateFeedback = async () => {
+    const aiFeedback = await ResumeBasedInterviewSummary(
+      `You are a technical interviewer providing summary after a interview based on the conversation of ${messages} `,
+      messages
+    );
+    console.log("ai feedback", aiFeedback);
 
-const generateFeedback = async () => {
-  const aiFeedback = await ResumeBasedInterviewSummary(
-    `You are a technical interviewer providing summary after a interview based on the conversation of ${messages} `,
-    messages
-  );
-  console.log("ai feedback", aiFeedback);
+    // Extract feedback text from Gemini API response
+    let feedbackText = "";
+    if (aiFeedback && aiFeedback.parts && aiFeedback.parts.length > 0) {
+      feedbackText = aiFeedback.parts[0].text;
+    } else if (typeof aiFeedback === "string") {
+      feedbackText = aiFeedback;
+    } else {
+      feedbackText = "No feedback generated.";
+    }
 
-  // Extract feedback text from Gemini API response
-  let feedbackText = "";
-  if (aiFeedback && aiFeedback.parts && aiFeedback.parts.length > 0) {
-    feedbackText = aiFeedback.parts[0].text;
-  } else if (typeof aiFeedback === "string") {
-    feedbackText = aiFeedback;
-  } else {
-    feedbackText = "No feedback generated.";
-  }
-
-  setFeedback(feedbackText);
-};
+    setFeedback(feedbackText);
+  };
 
   if (!resumeBasedInterviewData) {
     return (
@@ -265,7 +270,9 @@ const generateFeedback = async () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <Loader className="w-8 h-8 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">Loading interview room...</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading interview room...
+            </p>
           </div>
         </div>
       </div>
@@ -278,14 +285,31 @@ const generateFeedback = async () => {
         {/* Header */}
         <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-                {resumeBasedInterviewData?.coachingOption}{" "}
-                <span className="text-gray-500 dark:text-gray-400">Interview</span>
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Topic: {resumeBasedInterviewData?.topic} • Expert: {resumeBasedInterviewData?.expertName} 
-              </p>
+            <div className="flex justify-evenly">
+              <div>
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                  {resumeBasedInterviewData?.coachingOption}{" "}
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Interview
+                  </span>
+                </h1>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                  Topic: {resumeBasedInterviewData?.topic} • Expert:{" "}
+                  {resumeBasedInterviewData?.expertName}
+                </p>
+              </div>
+              <div>
+                <Alert
+                  variant="destructive"
+                  className="w-[360px] align-middle text-2xl m-auto "
+                >
+                  <Terminal />
+                  <AlertTitle>Heads up!</AlertTitle>
+                  <AlertDescription>
+                    Use Headphones for best experience
+                  </AlertDescription>
+                </Alert>
+              </div>
             </div>
             <div className="hidden sm:block">
               <UserButton />
@@ -300,26 +324,38 @@ const generateFeedback = async () => {
             {/* Expert Avatar */}
             <div className="flex-1 flex flex-col items-center justify-center p-6">
               <div className="text-center">
-                <div className={`w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 ${
-                  isConnected ? 'border-green-400 shadow-lg shadow-green-200' : 'border-gray-300 dark:border-gray-600'
-                } bg-white dark:bg-gray-700 mb-4 transition-all duration-300`}>
-                  <div className={`w-full h-full bg-gradient-to-b from-blue-400 to-blue-600 flex items-center justify-center text-white text-4xl font-bold ${
-                    isConnected ? 'animate-pulse' : ''
-                  }`}>
-                    {resumeBasedInterviewData?.expertName?.charAt(0) || 'E'}
+                <div
+                  className={`w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 ${
+                    isConnected
+                      ? "border-green-400 shadow-lg shadow-green-200"
+                      : "border-gray-300 dark:border-gray-600"
+                  } bg-white dark:bg-gray-700 mb-4 transition-all duration-300`}
+                >
+                  <div
+                    className={`w-full h-full bg-gradient-to-b from-blue-400 to-blue-600 flex items-center justify-center text-white text-4xl font-bold ${
+                      isConnected ? "animate-pulse" : ""
+                    }`}
+                  >
+                    {resumeBasedInterviewData?.expertName?.charAt(0) || "E"}
                   </div>
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                   {resumeBasedInterviewData?.expertName || "Expert"}
                 </h2>
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  isConnected 
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                }`}>
-                  <div className={`w-2 h-2 rounded-full mr-2 ${
-                    isConnected ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
-                  }`}></div>
+                <div
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    isConnected
+                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                  }`}
+                >
+                  <div
+                    className={`w-2 h-2 rounded-full mr-2 ${
+                      isConnected
+                        ? "bg-green-500 animate-pulse"
+                        : "bg-yellow-500"
+                    }`}
+                  ></div>
                   {isConnected ? "Connected & Listening" : "Ready to Connect"}
                 </div>
               </div>
@@ -373,7 +409,9 @@ const generateFeedback = async () => {
           <div className="w-full lg:w-96 bg-white dark:bg-gray-900 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-700 flex flex-col">
             {/* Conversation Header */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Live Conversation</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                Live Conversation
+              </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {messages.length} messages exchanged
               </p>
@@ -413,8 +451,14 @@ const generateFeedback = async () => {
                       <div className="bg-blue-500 text-white rounded-2xl rounded-bl-md py-3 px-4 shadow-sm">
                         <div className="flex items-center space-x-1">
                           <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                          <div
+                            className="w-2 h-2 bg-white rounded-full animate-bounce"
+                            style={{ animationDelay: "0.1s" }}
+                          ></div>
+                          <div
+                            className="w-2 h-2 bg-white rounded-full animate-bounce"
+                            style={{ animationDelay: "0.2s" }}
+                          ></div>
                         </div>
                       </div>
                     </div>
@@ -432,19 +476,25 @@ const generateFeedback = async () => {
                     Live Transcript:
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400 italic min-h-[20px]">
-                    {isConnected ? (transcript || "Listening...") : "Not connected"}
+                    {isConnected
+                      ? transcript || "Listening..."
+                      : "Not connected"}
                   </p>
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                  <p className="font-medium text-blue-700 dark:text-blue-300 mb-1">💡 Interview Tip:</p>
-                  <p>Speak clearly and pause briefly between thoughts. We'll provide detailed feedback at the end!</p>
+                  <p className="font-medium text-blue-700 dark:text-blue-300 mb-1">
+                    💡 Interview Tip:
+                  </p>
+                  <p>
+                    Speak clearly and pause briefly between thoughts. We'll
+                    provide detailed feedback at the end!
+                  </p>
                 </div>
               </div>
               {enableFeedback && (
-
-              <div className="feedback">
-                <h1>Feedback: {feedback}</h1>
-              </div>
+                <div className="feedback">
+                  <h1>Feedback: {feedback}</h1>
+                </div>
               )}
             </div>
           </div>

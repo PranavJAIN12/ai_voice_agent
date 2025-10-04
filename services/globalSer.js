@@ -288,3 +288,49 @@ export const ResumeBasedInterviewSummary = async(prompt, msg)=>{
     throw error;
   }
 }
+export const ATSCheck = async (prompt, msg) => {
+  if (!prompt || !msg) {
+    console.error("Missing required parameter(s):", { prompt, msg });
+    throw new Error("Missing required parameters");
+  }
+
+  const payload = JSON.stringify({
+    contents: [
+      {
+        parts: [
+          { text: prompt },
+          { text: msg }
+        ]
+      }
+    ]
+  });
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${process.env.GEMINI_MODEL}:generateContent?key=${process.env.GOOGLE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }
+    );
+
+    const data = await response.json();
+    console.log("Gemini API result:", data);
+
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    // Try to parse ATS JSON
+    let atsResult;
+    try {
+      atsResult = JSON.parse(rawText);
+    } catch {
+      atsResult = { ats_score: 0, matched_keywords: [], missing_keywords: [], suggestions: [rawText] };
+    }
+
+    return atsResult;
+  } catch (error) {
+    console.error("Gemini API error:", error);
+    throw error;
+  }
+};

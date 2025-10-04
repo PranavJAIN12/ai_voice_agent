@@ -10,10 +10,11 @@ import {
   AIModel,
   AIModelToGenerateFeedbackAndNotes,
 } from "@/services/globalSer";
-import { Loader } from "lucide-react";
+import { Loader, Terminal } from "lucide-react";
 import Markdown from "react-markdown";
 import { UserContext } from "@/app/_context/UserContext";
 import { useRouter } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 let silenceTimeout = null;
 
@@ -222,7 +223,7 @@ const DiscussionRoom = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       micStreamRef.current = stream;
-      setIsConnected(true); 
+      setIsConnected(true);
       console.log("Mic started");
     } catch (err) {
       console.error("Error accessing microphone:", err);
@@ -325,6 +326,18 @@ const DiscussionRoom = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 py-6 md:py-8">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+        <div>
+          <Alert
+            variant="destructive"
+            className="w-[360px] align-middle text-2xl m-auto "
+          >
+            <Terminal />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              Use Headphones for best experience
+            </AlertDescription>
+          </Alert>
+        </div>
         {/* Header */}
         <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
           <h1 className="text-lg sm:text-xl font-semibold">

@@ -9,6 +9,7 @@ import UserImputDial from "./UserImputDial";
 import ProfileDialog from "./ProfileDialog";
 import ResMockInterview from "./ResMockInterview";
 import ResumeMockInterviewDialog from "./ResMockInterview";
+import AtsScoreCheck from "./AtsScoreCheck";
 
 const FeatureAssistant = () => {
   const user = useUser();
@@ -85,6 +86,20 @@ const FeatureAssistant = () => {
           <ResumeMockInterviewDialog>
             <Button className="cursor-pointer">Start Resume Interview</Button>
           </ResumeMockInterviewDialog>
+        </div>
+         <div className="my-8 rounded-2xl border p-6 shadow-md bg-muted/40 relative overflow-hidden">
+          <div className="absolute top-0 left-0 bg-gradient-to-r from-green-400 to-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-br-lg shadow-sm">
+            🚀 New Feature
+          </div>
+
+          <h1 className="text-2xl font-bold mb-2">Check ATS Score</h1>
+          <p className="text-muted-foreground mb-4">
+            Get yoyr resume ATS Score using AI now.
+          </p>
+
+          <AtsScoreCheck>
+            <Button className="cursor-pointer">Check now</Button>
+          </AtsScoreCheck>
         </div>
       </section>
 
