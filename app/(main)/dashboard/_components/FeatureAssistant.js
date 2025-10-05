@@ -94,7 +94,7 @@ const FeatureAssistant = () => {
 
           <h1 className="text-2xl font-bold mb-2">Check ATS Score</h1>
           <p className="text-muted-foreground mb-4">
-            Get yoyr resume ATS Score using AI now.
+            Get your resume ATS Score using AI now.
           </p>
 
           <AtsScoreCheck>
