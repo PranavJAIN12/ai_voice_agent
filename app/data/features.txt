@@ -1,0 +1,6 @@
+CoachLume includes:
+- Voice-based interactive sessions.
+- Resume-based interview practice.
+- Light and dark mode.
+- Dashboard for managing conversations.
+- Credit system for usage management.
