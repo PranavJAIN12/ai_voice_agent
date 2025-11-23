@@ -1,0 +1,22 @@
+{
+  "appName": "CoachLume",
+  "description": "AI-powered learning platform with interactive voice agents",
+  "features": [
+    "Voice-based interactive sessions",
+    "Resume-based interview practice",
+    "Light and dark mode",
+    "Dashboard for managing conversations",
+    "Credit system for usage management"
+  ],
+  "roles": ["Interviewer", "Lecturer", "Coach"],
+  "faqs": [
+    {
+      "q": "What is CoachLume?",
+      "a": "CoachLume is an AI-powered learning platform that helps users practice interviews, improve communication, and learn new skills through interactive voice agents."
+    },
+    {
+      "q": "How does the credit system work?",
+      "a": "CoachLume uses a credit-based system to manage usage. Credits are consumed when you use features like voice sessions and interview practice."
+    }
+  ]
+}

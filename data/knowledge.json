@@ -1,0 +1,54 @@
+{
+  "topics": [
+    "AI voice agents",
+    "Interview practice",
+    "Communication coaching",
+    "Resume-based mock interviews",
+    "Credits and usage system",
+    "Light and dark mode",
+    "User dashboard interactions",
+    "CoachLume features overview"
+  ],
+  "faqs": [
+    {
+      "question": "What is CoachLume?",
+      "answer": "CoachLume is an AI-powered learning platform where users can practice interviews, improve communication, and learn new skills through interactive voice-based agents."
+    },
+    {
+      "question": "How do I use CoachLume?",
+      "answer": "After logging in, go to the dashboard, select a role such as interviewer or lecturer, and start an interactive voice session with the AI agent."
+    },
+    {
+      "question": "What roles are available?",
+      "answer": "CoachLume offers multiple roles including Interviewer, Lecturer, Language Coach, and Meditation Guide."
+    },
+    {
+      "question": "How does resume-based interview work?",
+      "answer": "You upload your resume, and the AI conducts a mock interview based on your skills, experience, and job role you're targeting."
+    },
+    {
+      "question": "Does CoachLume support dark mode?",
+      "answer": "Yes, CoachLume supports both light and dark modes depending on user preference."
+    },
+    {
+      "question": "How does the credit system work?",
+      "answer": "Every interaction with the AI voice agent uses credits. Users receive free credits initially, and additional credits can be purchased."
+    },
+    {
+      "question": "Can I listen to the AI responses again?",
+      "answer": "Yes, CoachLume allows you to pause, replay, and listen to any part of the interaction again."
+    },
+    {
+      "question": "Is my data secure?",
+      "answer": "Yes, CoachLume uses secure authentication via Stack Auth and stores user data safely."
+    },
+    {
+      "question": "Does CoachLume provide feedback?",
+      "answer": "CoachLume gives instant feedback based on your responses and helps you improve communication and interview skills."
+    },
+    {
+      "question": "Where can I manage my account?",
+      "answer": "You can manage your account from the dashboard, access past interactions, and update your profile settings."
+    }
+  ]
+}
