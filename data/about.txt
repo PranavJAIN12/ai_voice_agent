@@ -1,0 +1,4 @@
+CoachLume is an AI-powered learning platform with interactive voice agents.
+It helps users practice interviews, improve communication, and learn new skills.
+The app includes roles like Interviewer, Lecturer, and Coach.
+It also provides instant feedback and uses a credit-based system for usage control.

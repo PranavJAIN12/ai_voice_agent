@@ -2,6 +2,8 @@ import React from 'react'
 import FeatureAssistant from './_components/FeatureAssistant'
 import History from './_components/History'
 import Feedback from './_components/Feedback'
+import ChatButton from '../_components/ChatButton'
+import ChatBot from '../_components/ChatBot'
 
 const Dashboard = () => {
   return (
@@ -18,6 +20,9 @@ const Dashboard = () => {
         </div>
         <div className="w-full lg:w-2/5">
           <Feedback/>
+          <h1>hello</h1>
+          <ChatButton/>
+          {/* <ChatBot/> */}
         </div>
       </div>
     </div>
