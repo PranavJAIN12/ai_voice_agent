@@ -15,6 +15,7 @@ import Markdown from "react-markdown";
 import { UserContext } from "@/app/_context/UserContext";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 let silenceTimeout = null;
 
@@ -258,7 +259,8 @@ const DiscussionRoom = () => {
     setEnableFeedback(true);
     await generateFeedback();
     setLoading(false);
-    alert(`you are left with ${userData.credits} Credits`);
+    toast.info(`you are left with ${userData.credits} Credits`)
+    // alert(`you are left with ${userData.credits} Credits`);
   };
 
   const generateFeedback = async () => {

@@ -53,7 +53,8 @@ const ResumeMockInterviewDialog = ({ children }) => {
     const creditsRemaining = userData?.credits || 0;
 
     if (creditsRemaining <= 0) {
-      alert("You’ve used all your tokens. Please upgrade to continue.");
+      // alert("You’ve used all your tokens. Please upgrade to continue.");
+      toast.error("You’ve used all your tokens. Please upgrade to continue.")
       router.push("/dashboard");
       return;
     }

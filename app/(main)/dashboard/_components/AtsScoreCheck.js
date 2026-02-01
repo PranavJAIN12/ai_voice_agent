@@ -63,7 +63,8 @@ const AtsScoreCheck = ({ children }) => {
 
   const onClickCheckATS = async () => {
     if (!resumeData || resumeData.trim().length === 0) {
-      alert("Please upload a valid resume first");
+      // alert("Please upload a valid resume first");
+      toast.error("Please upload a valid resume first")
       return;
     }
 
