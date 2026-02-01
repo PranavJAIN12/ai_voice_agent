@@ -13,85 +13,32 @@ import { Button } from "@/components/ui/button";
 import { useFilePicker } from "use-file-picker";
 import { Loader, Upload, FileText, CheckCircle, XCircle } from "lucide-react";
 
-// Direct API call to Gemini
-const ATSCheck = async (prompt, msg) => {
-  const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_GEMINI_KEY;
-const GEMINI_MODEL = "gemini-2.0-flash"; // You can change this to "gemini-2.0-flash" if needed
-  if (!prompt || !msg) {
-    console.error("Missing required parameter(s):", { prompt, msg });
-    throw new Error("Missing required parameters");
+// Direct API call to OpenAI
+const ATSCheck = async (resumeText) => {
+  console.log("clicked")
+  if (!resumeText) {
+    throw new Error("Missing resume text");
   }
 
-  const payload = JSON.stringify({
-    contents: [
-      {
-        parts: [
-          { text: prompt },
-          { text: msg }
-        ]
-      }
-    ]
+  const response = await fetch("/api/ats-check", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      resumeText,
+    }),
   });
 
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GOOGLE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: payload,
-      }
-    );
+  const data = await response.json();
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || "Failed to fetch ATS result");
-    }
-
-    const data = await response.json();
-    console.log("Gemini API result:", data);
-
-    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-    // Try to parse ATS JSON
-    let atsResult;
-    try {
-      // Remove markdown code blocks if present
-      const jsonMatch = rawText.match(/```json\n?([\s\S]*?)\n?```/) || 
-                       rawText.match(/```\n?([\s\S]*?)\n?```/);
-      const jsonText = jsonMatch ? jsonMatch[1].trim() : rawText.trim();
-      
-      atsResult = JSON.parse(jsonText);
-      
-      // Validate structure
-      if (typeof atsResult.ats_score !== 'number') {
-        atsResult.ats_score = parseInt(atsResult.ats_score) || 0;
-      }
-      if (!Array.isArray(atsResult.matched_keywords)) {
-        atsResult.matched_keywords = [];
-      }
-      if (!Array.isArray(atsResult.missing_keywords)) {
-        atsResult.missing_keywords = [];
-      }
-      if (!Array.isArray(atsResult.suggestions)) {
-        atsResult.suggestions = [];
-      }
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      atsResult = { 
-        ats_score: 0, 
-        matched_keywords: [], 
-        missing_keywords: [], 
-        suggestions: [rawText.substring(0, 500)],
-        overall_feedback: "Unable to parse response properly"
-      };
-    }
-
-    return atsResult;
-  } catch (error) {
-    console.error("Gemini API error:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to check ATS score");
   }
+
+  return {
+    ats_score: Number(data.ats_score) || 0,
+    suggestions: Array.isArray(data.suggestions) ? data.suggestions : [],
+    overall_feedback: data.overall_feedback || "",
+  };
 };
 
 const AtsScoreCheck = ({ children }) => {
@@ -116,7 +63,8 @@ const AtsScoreCheck = ({ children }) => {
 
   const onClickCheckATS = async () => {
     if (!resumeData || resumeData.trim().length === 0) {
-      alert("Please upload a valid resume first");
+      // alert("Please upload a valid resume first");
+      toast.error("Please upload a valid resume first")
       return;
     }
 
@@ -124,38 +72,7 @@ const AtsScoreCheck = ({ children }) => {
       setLoading(true);
       setResult(null);
 
-      const prompt = `You are an expert ATS (Applicant Tracking System) analyzer.  
-Analyze the following resume and provide a comprehensive ATS compatibility assessment.  
-
-Evaluation Criteria:  
-1. Format compatibility (simple formatting, readable fonts, proper sections)  
-2. Keyword optimization (role- and industry-relevant terms, skills, technologies, or experiences)  
-3. Structure and organization (clear sections, bullet points, dates)  
-4. Content quality (achievements, quantifiable results, clarity)  
-5. Contact information and professional summary  
-
-Important Instructions:  
-- Respond ONLY in valid JSON format (no markdown, no extra text, no explanations).  
-- Follow the exact key names below.  
-- Do not include comments, escape characters, or additional fields.  
-- Ensure ats_score is an integer between 0 and 100.
-
-Output JSON format:
-{
-  "ats_score": 85,
-  "suggestions": [
-    "Add measurable achievements to strengthen impact",
-    "Use consistent date formatting across all roles",
-    "Include more industry-specific keywords to align with job descriptions",
-    "Consider adding a professional summary at the top"
-  ],
-  "overall_feedback": "The resume is strong in formatting and readability but would benefit from more quantifiable results and role-specific keywords."
-}
-
-Resume to analyze:
-`;
-
-      const atsResult = await ATSCheck(prompt, resumeData);
+      const atsResult = await ATSCheck(resumeData);
       setResult(atsResult);
     } catch (error) {
       console.error("ATS Check Error:", error);
